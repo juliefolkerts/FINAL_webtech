@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="images/amazon-flower.png">
+  <title>Flowers – Home</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Varela&display=swap" rel="stylesheet">
+</head>
+
+<header>
+    <nav>
+        <a href="flowers.html" class="brand">🌸Flowers</a>
+        <ul>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="info.html">Information</a></li>
+            <li><a href="search.html">Search</a></li>
+            <li><a href="favourites.html">My Favourites</a></li>
+        </ul>
+    </nav>
+
+    <button id="openNav" class="hamburger" onclick="w3_open()">☰</button>
+</header>
+
+
+
+<body class="home-page">
+
+  <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="w3_close()">×</a>
+        <a href="flowers.html">🌸Flowers</a>
+        <a href="gallery.html" class="active">Gallery</a>
+        <a href="info.html">Information</a>
+        <a href="search.html">Search</a>
+        <a href="favourites.html">My Favourites</a>
+  </div>
+
+  <main id="main">
+
+    <header class="hero">
+      <div class="hero-content">
+        <h1 style="font-size:20vw;">Flowers</h1>
+      </div>
+    </header>
+
+
+    <section class="overlap-block">
+      <div class="overlap-content">
+        <h1>Welcome to <strong>🌸Flowers</strong></h1>
+<p>
+  Discover the language of flowers — where every color and petal carries meaning. 
+  From vibrant reds that express love to soft whites symbolizing purity and peace, 
+  our blossoms help you say what words sometimes cannot. 
+  Explore our gallery, learn about the emotions behind each flower, 
+  and find the perfect bouquet to celebrate life’s most meaningful moments.
+</p>
+
+      </div>
+    </section>
+
+
+    <footer>
+      <p>
+        &copy; 2025 🌸Flowers
+      </p>
+    </footer>
+
+  </main>
+
+  
+
+<script>
+    /*     NAVIGATION BAR SETTINGS */
+
+
+  function w3_open() {
+    document.getElementById("mySidebar").classList.add("open");
+    document.getElementById("main").style.marginLeft = "250px";
+    document.getElementById("openNav").style.display = "none";
+  }
+
+  function w3_close() {
+    document.getElementById("mySidebar").classList.remove("open");
+    document.getElementById("main").style.marginLeft = "0";
+    document.getElementById("openNav").style.display = "inline-block";
+  }
+</script>
+
+
+</body>
+</html>
+

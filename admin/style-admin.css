@@ -1,0 +1,374 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela&display=swap');
+
+/* GLOBAL BASE STYLES-------------------------------------------------------------------------- */
+body {
+  font-family: "Varela", sans-serif;
+  background: white;
+  color: #1a1919;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* NAVBAR-------------------------------------------------------------------------- */
+nav {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem 2rem;
+  z-index: 10;
+}
+
+.brand {
+  font-weight: bold;
+  font-size: 1.25rem;
+  text-decoration: none;
+  color: #1a1919;     
+  display: inline-block;
+}
+
+
+nav ul {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-left: auto;
+}
+
+nav a {
+  color: #1a1919;             
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+nav a:hover {
+  border-bottom-color: #ffb6c1;
+}
+
+#openNav {
+  display: none;      
+  font-size: 1.5rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #1a1919;      
+  z-index: 1002;
+}
+
+/* SIDEBAR-------------------------------------------------------------------------- */
+.sidebar {
+  background: #ffe4ec;
+  height: 100vh;
+  padding-top: 5rem;
+  box-shadow: 2px 0 6px rgba(0,0,0,.1);
+  border-radius: 30px;
+}
+
+.sidebar .list-group-item {
+  background: transparent;
+  border: none;
+  color: #1a1919;
+  font-weight: 500;
+  transition: background .2s;
+}
+
+.sidebar .list-group-item:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.sidebar .list-group-item.active {
+  background: #ffb6c1;
+  color: white;
+}
+
+/* MAIN AREA / DASHBOARD CARDS-------------------------------------------------------------------------- */
+main { 
+  padding-top: 70px; 
+}
+
+.card {
+  border-radius: 30px;
+  border: 1px solid #ffe4ec;
+  
+}
+
+.card:hover {
+  box-shadow: 0 4px 10px rgba(255,182,193,.3);
+}
+
+/* TABLES-------------------------------------------------------------------------- */
+
+
+.table thead {
+  background: #ffe4ec;
+}
+
+.table tbody tr {
+  background-color: white !important;
+}
+
+
+
+.table tbody tr:hover td,
+.table-hover tbody tr:hover td {
+  background-color: #e4effa !important;  
+  transition: background-color 0.2s ease;
+}
+
+
+
+.table img {
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Email link */
+.table a {
+  color: #1a1919;
+  text-decoration: none;
+}
+
+.table a:hover {
+  color: #ff9cb3; 
+} 
+
+
+
+
+/* BUTTONS-------------------------------------------------------------------------- */
+
+.btn-soft {
+  background: white;
+  border: 1px solid #5fa8d3;
+  color: #5fa8d3;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.btn-soft:hover {
+  background: #5fa8d3;
+  color: white;
+}
+
+.btn-flower {
+  background: white;
+  border: 1px solid #313131;
+  color: #313131;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.btn-flower:hover {
+  background: #fd5a88;
+  color: rgb(252, 251, 252);
+}
+
+.d-grid.gap-2 button,
+.d-grid.gap-2 a.btn {
+  width: 150px;
+  margin: 0 auto;
+}
+
+
+/* STATUS BADGES-------------------------------------------------------------------------- */
+
+/* Paid */
+.badge.bg-success,
+.text-bg-success {
+  background-color: #b9e2b0 !important; 
+  color: #1a1919 !important;
+}
+
+/* Shipped */
+.badge.bg-secondary,
+.text-bg-secondary {
+  background-color: #b4d4fd !important;
+  color: #1a1919 !important;
+}
+
+/* Pending */
+.badge.bg-warning,
+.text-bg-warning {
+  background-color: #fff1a2 !important; 
+  color: #1a1919 !important;
+}
+
+/* Blocked */
+.badge.bg-blocked {
+  background-color: #e75480 !important; 
+  color: white !important;
+}
+
+/* refunded */
+.badge.bg-refunded {
+  background-color: #ffca89 !important; 
+  color: #1a1919 !important;
+}
+
+
+
+
+
+/* FOOTER-------------------------------------------------------------------------- */
+
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  text-align: center;
+  background: #ffe4ec;
+  color: #1b1a1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  border-radius: 30px;
+  padding-top: 17px;
+
+  font-family: "Varela", sans-serif;
+  font-size: 16px;                   
+  font-weight: normal;            
+  line-height: 30px; 
+}
+
+/* DROPDOWN --------------------------------------------------------------------------*/
+.dropdown-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ffe4ec;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  color: #1a1919;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.2s;
+}
+.dropdown-item:hover {
+  background-color: #ffe4ec;
+  color: #1a1919;
+}
+/* FORM SWITCH --------------------------------------------------------------------------*/
+
+
+.pastel-switch:checked {
+  background-color: #b4d4fd !important;
+  border-color: #b4d4fd !important;
+}
+.pastel-switch:focus {
+  box-shadow: 0 0 0 0.25rem rgba(180,212,253,.4) !important;
+}
+
+
+form {
+  width: 100%;
+  max-width: 100%;
+}
+
+
+.flower-input:focus,
+.flower-select:focus {
+  border-color: #ffb6c1 !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 182, 193, 0.3) !important;
+}
+
+.form-image-small {
+  width: 50%;        
+  height: auto;          
+  max-height: 250px;    
+  border-radius: 10px;   
+  object-fit: cover;
+}
+
+.form-image-box {
+  width: 50%;                
+  border: none !important;  
+  background: transparent;     
+  padding: 0 !important;       
+  box-shadow: none !important; 
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.form-image-box img {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+
+
+
+
+/* DROPDOWN MENU --------------------------------------------------------------------------*/
+
+
+select.flower-select option:hover,
+select.flower-select:focus {
+  background-color: #ffe4ec !important;
+}
+
+/* SWITCH BUTTON --------------------------------------------------------------------------*/
+.form-check-input.flower-switch {
+  width: 2.5em;
+  height: 1.3em;
+  background-color: #c7e7ff;
+  border: 1px solid #b7e0fa;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.form-check-input.flower-switch:checked {
+  background-color: #5fa8d3;
+  border-color: #5fa8d3;
+}
+
+.form-check-input.flower-switch:focus {
+  box-shadow: 0 0 0 0.2rem rgba(95, 168, 211, 0.25);
+}
+
+
+form .btn {
+  min-width: 120px;
+  padding: 0.4rem 1.2rem;
+}
+
+
+
+
+
+
+
+
+
+/* RESPONSIVENESS-------------------------------------------------------------------------- */
+@media (max-width:768px) {
+  .sidebar { 
+    height:auto; 
+    position:static; 
+    border-radius: 30;
+    margin: 1rem;
+    width: calc(100% - 2rem); 
+    padding-top: 1rem;
+    padding-bottom: 1rem;}
+  nav { 
+    flex-wrap: wrap; 
+  }
+}
+

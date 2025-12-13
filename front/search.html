@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="images/amazon-flower.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+
+<header>
+    <nav>
+        <a href="flowers.html" class="brand">🌸Flowers</a>
+        <ul>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="info.html">Information</a></li>
+            <li><a href="search.html">Search</a></li>
+            <li><a href="favourites.html">My Favourites</a></li>
+        </ul>
+    </nav>
+
+    <button id="openNav" class="hamburger" onclick="w3_open()">☰</button>
+</header>
+<body class="gallery-page">
+
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="w3_close()">×</a>
+        <a href="flowers.html">🌸Flowers</a>
+        <a href="gallery.html" class="active">Gallery</a>
+        <a href="info.html">Information</a>
+        <a href="search.html">Search</a>
+        <a href="favourites.html">My Favourites</a>
+    </div>
+
+    <div id="main">
+        <main class="gallery-page">
+            <h2 class="info-title">Plant & Flower Search</h2>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search for flowers..." />
+                <button id="searchBtn" class="search-btn">Search</button>
+            </div>
+
+            <p id="error" style="color:red;"></p>
+
+            <div id="results" class="results-grid"></div>
+
+            <div id="modal">
+                <div id="modal-content"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 🌸 Flowers</p>
+    </footer>
+
+    <script>
+    /*     NAVIGATION BAR SETTINGS */
+        function w3_open() {
+            document.getElementById("mySidebar").classList.add("open");
+            document.getElementById("main").style.marginLeft = "250px";
+            document.getElementById("openNav").style.display = "none";
+        }
+
+        function w3_close() {
+            document.getElementById("mySidebar").classList.remove("open");
+            document.getElementById("main").style.marginLeft = "0";
+            document.getElementById("openNav").style.display = "inline-block";
+        }
+    </script>
+
+    
+
+    <script src="search.js"></script>
+    
+
+</body>
+</html>
