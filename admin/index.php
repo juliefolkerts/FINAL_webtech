@@ -1,6 +1,37 @@
 <?php include "admin-header.php"; ?>
 <?php require "../db.php"; ?>
 
+<?php
+$totalFlowers = 0;
+$newOrders = 0;
+$pendingShipments = 0;
+$activeCustomers = 0;
+
+$result = mysqli_query($conn, "SELECT COALESCE(SUM(stock), 0) AS total FROM flowers");
+if ($result) {
+    $row = mysqli_fetch_assoc($result);
+    $totalFlowers = (int) $row["total"];
+}
+
+$result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM flowers");
+if ($result) {
+    $row = mysqli_fetch_assoc($result);
+    $newOrders = (int) $row["total"];
+}
+
+$result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM orders");
+if ($result) {
+    $row = mysqli_fetch_assoc($result);
+    $pendingShipments = (int) $row["total"];
+}
+
+$result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE role <> 'admin' OR role IS NULL");
+if ($result) {
+    $row = mysqli_fetch_assoc($result);
+    $activeCustomers = (int) $row["total"];
+}
+?>
+
 <main class="container-fluid">
   <div class="row">
 
@@ -11,19 +42,19 @@
 
       <section class="row g-3 mb-4">
         <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body">
-          <div class="small text-muted">Total Flowers</div><div class="h4">128</div>
+          <div class="small text-muted">Total Inventory</div><div class="h4"><?php echo $totalFlowers; ?></div>
         </div></div></div>
 
         <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body">
-          <div class="small text-muted">New Orders</div><div class="h4">23</div>
+          <div class="small text-muted">Flower types</div><div class="h4"><?php echo $newOrders; ?></div>
         </div></div></div>
 
         <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body">
-          <div class="small text-muted">Pending Shipments</div><div class="h4">5</div>
+          <div class="small text-muted">Total Orders</div><div class="h4"><?php echo $pendingShipments; ?></div>
         </div></div></div>
 
         <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body">
-          <div class="small text-muted">Active Customers</div><div class="h4">14</div>
+          <div class="small text-muted">Active Customers</div><div class="h4"><?php echo $activeCustomers; ?></div>
         </div></div></div>
       </section>
 

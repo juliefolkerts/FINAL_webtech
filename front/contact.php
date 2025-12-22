@@ -42,8 +42,8 @@ include "header.php";
         
 
           <div class="mb-4 text-center" style="padding-top: 10px;">
-            <p class="mb-1">Email: <a href="mailto:contact.us@flowers.comm"contact.us@flowers.comm</a></p>
-            <p class="mb-0">Phone: <a href="tel:+31621265814 test"+31621265814 test</a></p>
+            <p class="mb-1">Email: <a href="mailto:contact.us@flowers.com">contact.us@flowers.com</a></p>
+            <p class="mb-0">Phone: <a href="tel:+31621265814">+31621265814</a></p>
           </div>
 
           <form method="post" action="#">

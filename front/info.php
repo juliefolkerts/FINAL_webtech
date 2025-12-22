@@ -15,11 +15,10 @@ include "header.php";
       <div class="text">
         <h2>Pink Flowers</h2>
         
-        <p>
-          Pink represents tenderness, affection, and gentle admiration, often carrying a softer emotional tone than bold red. It’s commonly chosen for birthdays, thank-you bouquets, baby showers, and moments when you want to say “I care” without heavy romance. Different shades of pink can change the message: pale pinks feel delicate and sweet, while brighter pinks are playful and celebratory. Pink arrangements are ideal for close friends and family, and they work well alongside whites or greens to keep the overall composition light and comforting.</p>
+        <p>Pink represents tenderness, affection, and gentle admiration, often carrying a softer emotional tone than bold red. It’s commonly chosen for birthdays, thank-you bouquets, baby showers, and moments when you want to say “I care” without heavy romance. Different shades of pink can change the message: pale pinks feel delicate and sweet, while brighter pinks are playful and celebratory. Pink arrangements are ideal for close friends and family, and they work well alongside whites or greens to keep the overall composition light and comforting.</p>
       </div>
       <div class="image">
-        <img src="images/info_image1.jpg" alt="Project overview image">
+        <img src="images/info_image1_69496334071e5.jpg" alt="Project overview image">
       </div>
     </div>
   </section>
@@ -32,9 +31,7 @@ include "header.php";
       <div class="text">
         <h2>Light Blue Flowers</h2>
         
-        <p>
-          Light blue conveys calm, serenity, and trust—qualities that make it a soothing choice in times of stress or recuperation. Because it evokes the sky and water, light blue is associated with healing, emotional support, and peacefulness, so it’s often used for get-well wishes, sympathy arrangements, or to welcome a new baby boy. The gentle tone of light blue can also suggest thoughtful tranquility in more serious contexts, helping to ease difficult conversations. Pairing light blue with soft whites and greens emphasizes a gentle, restorative feeling rather than a loud or attention-seeking display.
-        </p>
+        <p>Light blue conveys calm, serenity, and trust—qualities that make it a soothing choice in times of stress or recuperation. Because it evokes the sky and water, light blue is associated with healing, emotional support, and peacefulness, so it’s often used for get-well wishes, sympathy arrangements, or to welcome a new baby boy. The gentle tone of light blue can also suggest thoughtful tranquility in more serious contexts, helping to ease difficult conversations. Pairing light blue with soft whites and greens emphasizes a gentle, restorative feeling rather than a loud or attention-seeking display.</p>
       </div>
     </div>
   </section>
@@ -43,9 +40,7 @@ include "header.php";
     <div class="info-row">
       <div class="text">
         <h2>White Flowers</h2>
-        <p>
-          White represents purity, reverence, and new beginnings, making it a staple for weddings, baptisms, and solemn ceremonies where clarity and respect are essential. It also commonly appears in sympathy arrangements and memorials because of its calming, unobtrusive quality. White flowers tend to bring a sense of quiet dignity to any space and can soften heavier colors when used alongside them. Because white reads as sincere and versatile, it’s an excellent choice when the occasion requires simplicity, solemnity, or a clear note of heartfelt sincerity.
-        </p>
+        <p>White represents purity, reverence, and new beginnings, making it a staple for weddings, baptisms, and solemn ceremonies where clarity and respect are essential. It also commonly appears in sympathy arrangements and memorials because of its calming, unobtrusive quality. White flowers tend to bring a sense of quiet dignity to any space and can soften heavier colors when used alongside them. Because white reads as sincere and versatile, it’s an excellent choice when the occasion requires simplicity, solemnity, or a clear note of heartfelt sincerity.</p>
       </div>
       <div class="image">
         <img src="images/info_image6.jpg" alt="Interactivity example">
@@ -61,8 +56,7 @@ include "header.php";
       <div class="text">
         <h2>Purple Flowers</h2>
         
-        <p>
-          Dark purple conveys dignity, luxury, and deep respect, often chosen to honor achievements or mark formal, important occasions. This rich shade has historical ties to royalty and distinction, so dark purple arrangements feel ceremonial and prestigious. They’re appropriate for awards, promotions, or when you want to show profound esteem rather than casual praise. Pairing dark purple with golds or deep greens amplifies the sense of elegance and makes a strong visual statement about the significance of the event or the person being honoured.</div>
+        <p>Dark purple conveys dignity, luxury, and deep respect, often chosen to honor achievements or mark formal, important occasions. This rich shade has historical ties to royalty and distinction, so dark purple arrangements feel ceremonial and prestigious. They’re appropriate for awards, promotions, or when you want to show profound esteem rather than casual praise. Pairing dark purple with golds or deep greens amplifies the sense of elegance and makes a strong visual statement about the significance of the event or the person being honoured.</p></div>
       
     </div>
   </section>
@@ -72,8 +66,7 @@ include "header.php";
       <div class="text">
         <h2>Green Flowers</h2>
         
-        <p>
-          Green flowers symbolize renewal, balance, and the natural energy of life. Their fresh color reminds us of growth, health, and harmony with nature. Green blooms are often used to celebrate new beginnings — such as starting a new job, moving into a new home, or recovering from illness. They bring a sense of calm and stability while also representing resilience and hope. Whether pale or deep in shade, green flowers add a refreshing, peaceful touch to any arrangement and pair beautifully with almost every other color.</div>
+        <p>Green flowers symbolize renewal, balance, and the natural energy of life. Their fresh color reminds us of growth, health, and harmony with nature. Green blooms are often used to celebrate new beginnings — such as starting a new job, moving into a new home, or recovering from illness. They bring a sense of calm and stability while also representing resilience and hope. Whether pale or deep in shade, green flowers add a refreshing, peaceful touch to any arrangement and pair beautifully with almost every other color.</p></div>
       <div class="image">
         <img src="images/greenflower.jpg" alt="Design concept">
       </div>
@@ -87,9 +80,7 @@ include "header.php";
       </div>
       <div class="text">
         <h2>Orange Flowers</h2>
-        <p>
-        Orange communicates enthusiasm, creativity, and celebration—an energetic color that sparks excitement and motivation. It’s ideal for parties, promotions, or to support someone embarking on a bold new venture, as the color tends to feel invigorating and encouraging. Orange flowers carry a sense of warmth and adventure, so they’re great for moments when you want to inspire confidence and show spirited support. Use orange to create lively arrangements that stand out at social gatherings or to send a clear message of exuberant congratulations.
-        </p>
+        <p>Orange communicates enthusiasm, creativity, and celebration—an energetic color that sparks excitement and motivation. It’s ideal for parties, promotions, or to support someone embarking on a bold new venture, as the color tends to feel invigorating and encouraging. Orange flowers carry a sense of warmth and adventure, so they’re great for moments when you want to inspire confidence and show spirited support. Use orange to create lively arrangements that stand out at social gatherings or to send a clear message of exuberant congratulations.</p>
       </div>
     </div>
   </section>
@@ -98,8 +89,7 @@ include "header.php";
     <div class="info-row">
       <div class="text">
         <h2>Dark Blue FLowers</h2>
-        <p>
-        Dark blue evokes depth, reliability, and dignity, giving floral arrangements a mature and composed presence. It’s an excellent choice for professional occasions, formal congratulations, and gestures intended to communicate steady support or respect. Because darker blue blooms are rarer, they also lend an exotic or refined quality to bouquets—suggesting thoughtfulness and distinction. Use dark blue in arrangements for career milestones, academic achievements, or to honor someone when you want to emphasize trustworthiness and long-term esteem.</p>
+        <p>Dark blue evokes depth, reliability, and dignity, giving floral arrangements a mature and composed presence. It’s an excellent choice for professional occasions, formal congratulations, and gestures intended to communicate steady support or respect. Because darker blue blooms are rarer, they also lend an exotic or refined quality to bouquets—suggesting thoughtfulness and distinction. Use dark blue in arrangements for career milestones, academic achievements, or to honor someone when you want to emphasize trustworthiness and long-term esteem.</p>
       </div>
       <div class="image">
         <img src="images/darkblueflower.jpg" alt="Code structure example">
@@ -116,8 +106,7 @@ include "header.php";
       <div class="text">
         <h2>Red flowers</h2>
         
-        <p>
-          Red is the classic color of passion, love, and powerful emotion, often used to express romance or intense devotion. It’s the go-to for romantic occasions like anniversaries, declarations of love, and significant relationship milestones. Beyond romance, red can also signify courage, determination, or strong admiration—so it works for dramatic gestures and bold acknowledgements of achievement. Because red commands attention, it’s most effective when the message is unambiguous: choose red when you want your feelings to be felt fully and immediately.</p>
+        <p>Red is the classic color of passion, love, and powerful emotion, often used to express romance or intense devotion. It’s the go-to for romantic occasions like anniversaries, declarations of love, and significant relationship milestones. Beyond romance, red can also signify courage, determination, or strong admiration—so it works for dramatic gestures and bold acknowledgements of achievement. Because red commands attention, it’s most effective when the message is unambiguous: choose red when you want your feelings to be felt fully and immediately.</p>
       </div>
       
     </div>
@@ -127,8 +116,7 @@ include "header.php";
     <div class="info-row">
       <div class="text">
         <h2>Yellow Flowers</h2>
-        <p>
-        Yellow radiates joy, friendship, and optimism. It’s the go-to color for cheering someone up, congratulating friends, or celebrating lighthearted occasions. Bright and sunny, yellow says “celebrate” and “you brighten my day.”</p>
+        <p>Yellow radiates joy, friendship, and optimism. It’s the go-to color for cheering someone up, congratulating friends, or celebrating lighthearted occasions. Bright and sunny, yellow says “celebrate” and “you brighten my day.”</p>
       </div>
       <div class="image">
         <img src="images/sunflower_info.jpg" alt="Code structure example">
@@ -146,9 +134,7 @@ include "header.php";
       </div>
       <div class="text">
         <h2>Lilac Flowers</h2>
-        <p>
-        Light purple or lavender suggests grace, enchantment, and gentle admiration, offering a softer alternative to bold colors while still feeling refined. It’s well suited to delicate compliments, understated romantic gestures, and moments when you want to communicate thoughtful appreciation without overwhelming intensity. Lavender has a dreamy quality that pairs beautifully with pale pinks and creams to create romantic, whimsical arrangements. Use light purple when you want to add a touch of elegance and subtle charm to a bouquet—perfect for intimate celebrations and personal acknowledgements.
-        </p>
+        <p>Light purple or lavender suggests grace, enchantment, and gentle admiration, offering a softer alternative to bold colors while still feeling refined. It’s well suited to delicate compliments, understated romantic gestures, and moments when you want to communicate thoughtful appreciation without overwhelming intensity. Lavender has a dreamy quality that pairs beautifully with pale pinks and creams to create romantic, whimsical arrangements. Use light purple when you want to add a touch of elegance and subtle charm to a bouquet—perfect for intimate celebrations and personal acknowledgements.</p>
       </div>
     
     </div>
