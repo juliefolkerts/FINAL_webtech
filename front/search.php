@@ -78,6 +78,32 @@ include "header.php";
   z-index: 6 !important;
 }
 
+.results-grid .flower-card {
+  flex: 0 1 calc(25% - 20px) !important;
+  max-width: calc(25% - 20px) !important;
+}
+
+@media (max-width: 1024px) {
+  .results-grid .flower-card {
+    flex-basis: calc(33.333% - 20px) !important;
+    max-width: calc(33.333% - 20px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .results-grid .flower-card {
+    flex-basis: calc(50% - 20px) !important;
+    max-width: calc(50% - 20px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-grid .flower-card {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
 @media (max-width: 420px) {
   .flower-card .flower-card-inner img { height: 160px !important; }
 }
@@ -108,9 +134,8 @@ function heartHtml(isFav) {
     return isFav ? '🤍' : '❤️';
 }
 
-document.getElementById("searchBtn").onclick = function () {
-    let q = document.getElementById("searchInput").value.trim();
-    if (!q) return;
+function loadResults(query) {
+    const q = query ? query.trim() : "";
 
     fetch("search_action.php?q=" + encodeURIComponent(q))
         .then(res => res.json())
@@ -156,6 +181,11 @@ document.getElementById("searchBtn").onclick = function () {
             console.error(err);
             document.getElementById("results").innerHTML = "<p>Error searching. Try again.</p>";
         });
+}
+
+document.getElementById("searchBtn").onclick = function () {
+    const q = document.getElementById("searchInput").value;
+    loadResults(q);
 };
 
 function toggleFavourite(id, btnEl) {
@@ -177,6 +207,8 @@ function toggleFavourite(id, btnEl) {
             alert("Network error");
         });
 }
+
+loadResults("");
 </script>
 
 </body>

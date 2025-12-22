@@ -10,11 +10,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stock = isset($_POST['stock']) && $_POST['stock'] !== '' ? (int) $_POST['stock'] : 0;
     $color = isset($_POST['color']) ? trim($_POST['color']) : '';
     $description = isset($_POST['description']) ? trim($_POST['description']) : '';
-    $image = isset($_POST['image']) ? trim($_POST['image']) : '';
+    $keywords = isset($_POST['keywords']) ? trim($_POST['keywords']) : '';
+    $image = '';
     $visible = isset($_POST['visible']) ? 1 : 0;
 
-    $sql = "INSERT INTO flowers (name, sku, category_id, price, stock, color, description, image, visible)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = "../front/images/";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $original_name = basename($_FILES['image']['name']);
+        $extension = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+        $safe_name = preg_replace('/[^a-zA-Z0-9_\-]/', '_', pathinfo($original_name, PATHINFO_FILENAME));
+        $file_name = $safe_name . "_" . uniqid() . ($extension ? "." . $extension : "");
+        $target_path = $upload_dir . $file_name;
+
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
+            die("Image upload failed.");
+        }
+
+        $image = "images/" . $file_name;
+    }
+
+    $sql = "INSERT INTO flowers (name, sku, category_id, price, stock, color, description, keywords, image, visible)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
 
@@ -22,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         die("Prepare failed: " . mysqli_error($conn));
     }
 
-    $types = "ssidisssi";
+    $types = "ssidissssi";
     mysqli_stmt_bind_param(
         $stmt,
         $types,
@@ -33,6 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stock,
         $color,
         $description,
+        $keywords,
         $image,
         $visible
     );
@@ -89,7 +110,7 @@ $categories = mysqli_query($conn, "SELECT * FROM categories");
         <a class="btn btn-outline-dark" href="content-list.php">All Flowers</a>
       </header>
 
-      <form class="row g-3" method="POST">
+      <form class="row g-3" method="POST" enctype="multipart/form-data">
 
         <div class="col-md-6">
           <label class="form-label">Flower Name</label>
@@ -109,6 +130,11 @@ $categories = mysqli_query($conn, "SELECT * FROM categories");
         <div class="col-12">
           <label class="form-label">Description</label>
           <textarea class="form-control flower-input" name="description" rows="6"></textarea>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Keywords</label>
+          <input class="form-control flower-input" name="keywords">
         </div>
 
         <div class="col-md-4">
@@ -145,8 +171,8 @@ $categories = mysqli_query($conn, "SELECT * FROM categories");
         </div>
 
         <div class="col-12">
-          <label class="form-label">Image URL</label>
-          <input class="form-control flower-input" name="image">
+          <label class="form-label">Upload Image</label>
+          <input class="form-control flower-input" type="file" name="image" accept="image/*">
         </div>
 
         <div class="col-12 d-flex gap-2 mb-5">

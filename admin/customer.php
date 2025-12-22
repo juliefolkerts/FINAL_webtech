@@ -1,6 +1,7 @@
 <?php include "admin-header.php"; ?>
 <?php require "../db.php"; ?>
 
+
 <?php
 // Get the user ID from URL
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -30,9 +31,80 @@ mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
 $orders_result = mysqli_stmt_get_result($stmt);
 mysqli_stmt_close($stmt);
+
+// fetch favourites
+$stmt = mysqli_prepare($conn, "
+    SELECT flowers.name, flowers.image
+    FROM favourites
+    JOIN flowers ON flowers.id = favourites.flower_id
+    WHERE favourites.user_id = ?
+    ORDER BY favourites.id DESC
+");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$favourites_result = mysqli_stmt_get_result($stmt);
+mysqli_stmt_close($stmt);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_customer'])) {
+    $delete_id = (int) $_POST['delete_customer'];
+    if ($delete_id > 0) {
+        $stmt = mysqli_prepare($conn, "DELETE FROM favourites WHERE user_id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $delete_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+
+        $stmt = mysqli_prepare($conn, "DELETE FROM users WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "i", $delete_id);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    }
+    header("Location: customers.php");
+    exit;
+}
 ?>
 
 <body>
+  <style>
+    .customer-fav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .customer-fav-grid .gallery-item {
+      border-radius: 8px;
+    }
+
+    .customer-fav-grid .gallery-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .customer-fav-grid .gallery-item .caption {
+      position: static;
+      opacity: 1;
+      background: none;
+      font-size: 0.75rem;
+      padding: 6px 0 0;
+      text-align: center;
+      transform: none;
+    }
+    .btn-dcustomer {
+      background: white;
+      border: 1px solid #313131;
+      color: #313131;
+      font-weight: 500;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      }
+      .btn-dcustomer:hover {
+        background: #fd5a88;
+        color: rgb(252, 251, 252);
+      }
+  </style>
 
   <main class="container-fluid">
     <div class="row">
@@ -54,7 +126,10 @@ mysqli_stmt_close($stmt);
                 <h2 class="h6">Customer</h2>
                 <p class="mb-1"><?= htmlspecialchars($user['username']) ?></p>
                 <p class="small text-muted"><?= htmlspecialchars($user['email']) ?></p>
-                <a class="btn btn-outline-dark btn-sm" href="customers.php">Back to List</a>
+                <form id="delete-customer-form" method="POST">
+                  <input type="hidden" name="delete_customer" value="<?= (int) $user['id'] ?>">
+                  <button class="btn btn-dcustomer btn-sm" type="submit">Delete Customer</button>
+                </form>
               </div>
             </div>
           </div>
@@ -100,7 +175,18 @@ mysqli_stmt_close($stmt);
 
                   <!-- Saved Favorites -->
                   <h3 class="h6">Saved Favorites</h3>
-                  <ul id="customer-fav-list"></ul>
+                  <div id="customer-fav-list" class="customer-fav-grid">
+                    <?php if ($favourites_result && mysqli_num_rows($favourites_result) > 0): ?>
+                      <?php while ($fav = mysqli_fetch_assoc($favourites_result)): ?>
+                        <div class="gallery-item">
+                          <img src="<?= htmlspecialchars($fav['image']) ?>" alt="<?= htmlspecialchars($fav['name']) ?>">
+                          <p class="caption"><?= htmlspecialchars($fav['name']) ?></p>
+                        </div>
+                      <?php endwhile; ?>
+                    <?php else: ?>
+                      <p>No favorites saved.</p>
+                    <?php endif; ?>
+                  </div>
 
                 </div>
               </div>
@@ -115,19 +201,13 @@ mysqli_stmt_close($stmt);
   <?php include "footer-admin.php"; ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- API stuff for favorites -->
   <script>
-    const favList = document.getElementById("customer-fav-list");
-    const favs = JSON.parse(localStorage.getItem("flowerFavorites")) || [];
-
-    if (favs.length === 0) {
-      favList.innerHTML = "<li>No favorites saved.</li>";
-    } else {
-      favs.forEach(f => {
-        const li = document.createElement("li");
-        li.textContent = `${f.name} — ${f.color || ""} (${f.meaning || ""})`;
-        favList.appendChild(li);
+    const deleteForm = document.getElementById("delete-customer-form");
+    if (deleteForm) {
+      deleteForm.addEventListener("submit", function (event) {
+        if (!confirm("Are you sure you want to delete this user?")) {
+          event.preventDefault();
+        }
       });
     }
   </script>

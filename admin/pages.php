@@ -37,6 +37,18 @@
     background: #fd5a88;
   color: rgb(252, 251, 252);
   }
+
+  .btn-soft {
+  background: white;
+  border: 1px solid #5fa8d3;
+  color: #5fa8d3;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.btn-soft:hover {
+  background: #5fa8d3;
+  color: white;
+}
 </style>
 
 <body>
@@ -58,6 +70,17 @@
           <a class="btn btn-soft" href="#">Add New Page</a>
         </div>
 
+        <?php
+          $pages = [
+            ["title" => "Home", "slug" => "flowers.php", "status" => "Published"],
+            ["title" => "Information", "slug" => "info.php", "status" => "Published"],
+            ["title" => "Assortment", "slug" => "search.php", "status" => "Published"],
+            ["title" => "Favourites", "slug" => "favourites.php", "status" => "Published"],
+            ["title" => "Profile", "slug" => "profile.php", "status" => "Published"],
+            ["title" => "Contact", "slug" => "contact.php", "status" => "Published"],
+          ];
+        ?>
+
         <div class="table-responsive">
           <table class="table table-striped table-hover align-middle">
             <thead>
@@ -65,15 +88,24 @@
                 <th>Title</th>
                 <th>Slug</th>
                 <th>Status</th>
-                <th>Last Updated</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>Home</td><td>/flowers</td><td><span class="badge bg-success">Published</span></td><td>2025-09-12</td><td><a class="btn btn-edit" href="#">Edit</a></td></tr>
-              <tr><td>Gallery</td><td>/gallery</td><td><span class="badge bg-success">Published</span></td><td>2025-09-10</td><td><a class="btn btn-edit" href="#">Edit</a></td></tr>
-              <tr><td>FAQ</td><td>/faq</td><td><span class="badge bg-blocked">Draft</span></td><td>2025-09-20</td><td><a class="btn btn-edit" href="#">Edit</a></td></tr>
-              <tr><td>Information</td><td>/information</td><td><span class="badge bg-success">Published</span></td><td>2025-09-14</td><td><a class="btn btn-edit" href="#">Edit</a></td></tr>
+              <?php foreach ($pages as $page): ?>
+                <?php
+                  $statusClass = ($page["status"] === "Published") ? "bg-success" : "bg-blocked";
+                ?>
+                <tr>
+                  <td><?= htmlspecialchars($page["title"]); ?></td>
+                  <td><?= htmlspecialchars("/" . $page["slug"]); ?></td>
+                  <td><span class="badge <?= $statusClass; ?>"><?= htmlspecialchars($page["status"]); ?></span></td>
+                  <td>
+                    <?php $slugBase = pathinfo($page["slug"], PATHINFO_FILENAME); ?>
+                    <a class="btn btn-edit" href="<?= htmlspecialchars($slugBase . "-edit.php"); ?>">Edit</a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
             </tbody>
           </table>
         </div>
@@ -84,11 +116,3 @@
   <!-- FOOTER -->
 <?php include "footer-admin.php"; ?>
 </body>
-
-
-
-
-
-
-
-
