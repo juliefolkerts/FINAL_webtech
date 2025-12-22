@@ -9,11 +9,23 @@ $currentEmail = "";
 $currentPhone = "";
 
 if ($contactMarkup !== false) {
+  // Fix broken anchor tags first (missing ">" before the visible text)
+  $contactMarkup = preg_replace(
+    '/(mailto:[^"]+)"\s*([a-zA-Z0-9._%+\-@]+)<\/a>/',
+    '$1">$2</a>',
+    $contactMarkup
+  );
+  $contactMarkup = preg_replace(
+    '/(tel:[^"]+)"\s*([^<]+)<\/a>/',
+    '$1">$2</a>',
+    $contactMarkup
+  );
+
   if (preg_match('/Email:\s*<a[^>]*href="mailto:([^"]+)"[^>]*>([^<]*)<\/a>/i', $contactMarkup, $matches)) {
-    $currentEmail = $matches[2] !== "" ? $matches[2] : $matches[1];
+    $currentEmail = trim($matches[2]) !== "" ? $matches[2] : $matches[1];
   }
   if (preg_match('/Phone:\s*<a[^>]*href="tel:([^"]+)"[^>]*>([^<]*)<\/a>/i', $contactMarkup, $matches)) {
-    $currentPhone = $matches[2] !== "" ? $matches[2] : $matches[1];
+    $currentPhone = trim($matches[2]) !== "" ? $matches[2] : $matches[1];
   }
 }
 
@@ -29,24 +41,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   }
 
   if (empty($errors)) {
+    $emailEsc = htmlspecialchars($email, ENT_QUOTES);
+    $phoneEsc = htmlspecialchars($phone, ENT_QUOTES);
+
     $updatedMarkup = $contactMarkup;
 
-    $updatedMarkup = preg_replace(
-      '/(Email:\s*<a[^>]*href="mailto:)[^"]+(")([^>]*>)[^<]*(<\/a>)/i',
-      '$1' . htmlspecialchars($email, ENT_QUOTES) . '$2$3' . htmlspecialchars($email, ENT_QUOTES) . '$4',
+    $updatedMarkup = preg_replace_callback(
+      '/(Email:\s*<a[^>]*href="mailto:)([^"]+)(")([^>]*>)([^<]*)(<\/a>)/i',
+      function ($m) use ($emailEsc) {
+        return $m[1] . $emailEsc . $m[3] . $m[4] . $emailEsc . $m[6];
+      },
       $updatedMarkup,
-      1
+      1,
+      $emailCount
     );
 
-    $updatedMarkup = preg_replace(
-      '/(Phone:\s*<a[^>]*href="tel:)[^"]+(")([^>]*>)[^<]*(<\/a>)/i',
-      '$1' . htmlspecialchars($phone, ENT_QUOTES) . '$2$3' . htmlspecialchars($phone, ENT_QUOTES) . '$4',
+    $updatedMarkup = preg_replace_callback(
+      '/(Phone:\s*<a[^>]*href="tel:)([^"]+)(")([^>]*>)([^<]*)(<\/a>)/i',
+      function ($m) use ($phoneEsc) {
+        return $m[1] . $phoneEsc . $m[3] . $m[4] . $phoneEsc . $m[6];
+      },
       $updatedMarkup,
-      1
+      1,
+      $phoneCount
     );
 
-    if ($updatedMarkup === null) {
-      $errors[] = "Failed to update contact information.";
+    if (($emailCount ?? 0) === 0 || ($phoneCount ?? 0) === 0) {
+      $errors[] = "Failed to locate email/phone markup in front/contact.php.";
     } else {
       if (file_put_contents($contactPath, $updatedMarkup) === false) {
         $errors[] = "Unable to write changes to front/contact.php.";
