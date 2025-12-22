@@ -6,9 +6,12 @@
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 // Fetch user data
-$user = mysqli_fetch_assoc(
-    mysqli_query($conn, "SELECT id, username, email FROM users WHERE id=$id")
-);
+$stmt = mysqli_prepare($conn, "SELECT id, username, email FROM users WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
 // als user niet gevonden, redirect back
 if (!$user) {
@@ -17,12 +20,16 @@ if (!$user) {
 }
 
 // fecth orders
-$orders_result = mysqli_query($conn, "
+$stmt = mysqli_prepare($conn, "
     SELECT id, created_at, total, status
     FROM orders
-    WHERE user_id=$id
+    WHERE user_id = ?
     ORDER BY id DESC
 ");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$orders_result = mysqli_stmt_get_result($stmt);
+mysqli_stmt_close($stmt);
 ?>
 
 <body>

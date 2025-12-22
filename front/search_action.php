@@ -1,13 +1,28 @@
 <?php
+//n
+ob_start();
+
+//error check
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require "../db.php";
 
 $q = "%" . ($_GET["q"] ?? "") . "%";
 
-// prepare query
-$sql = "SELECT * FROM flowers WHERE name LIKE ? OR description LIKE ? OR IFNULL(keywords,'') LIKE ?";
+//fixed query
+$sql = "SELECT * FROM flowers WHERE visible = 1 AND (name LIKE ? OR description LIKE ? OR IFNULL(keywords,'') LIKE ?)";
 $stmt = mysqli_prepare($conn, $sql);
+//error check:
+if (!$stmt) {
+    die("Prepare failed: " . mysqli_error($conn));
+}
+
+
 mysqli_stmt_bind_param($stmt, "sss", $q, $q, $q);
+
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
@@ -32,6 +47,10 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     $data[] = $row;
 }
-
-header('Content-Type: application/json');
+//n
+while (ob_get_level() > 0) {
+    ob_end_clean();
+}
+header('Content-Type: application/json; charset=utf-8');
 echo json_encode($data);
+
