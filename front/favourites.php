@@ -79,7 +79,6 @@ $result = mysqli_stmt_get_result($stmt);
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  gap: 8px !important;
   margin-top: 12px !important;
   width: 100% !important;
   box-sizing: border-box !important;
@@ -87,19 +86,35 @@ $result = mysqli_stmt_get_result($stmt);
 }
 
 .flower-card .card-actions.card-actions-outside .btn,
-.flower-card .card-actions.card-actions-outside .remove-fav,
-.flower-card .card-actions.card-actions-outside .add-cart {
+.flower-card .card-actions.card-actions-outside .fav-toggle {
   position: relative !important;
   z-index: 6 !important;
-  padding: 4px 8px !important;
-  font-size: 0.75rem !important;
-  line-height: 1.2 !important;
 }
-.results-grid {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: center !important;
-  gap: 20px !important;
+
+.results-grid .flower-card {
+  flex: 0 1 calc(25% - 20px) !important;
+  max-width: calc(25% - 20px) !important;
+}
+
+@media (max-width: 1024px) {
+  .results-grid .flower-card {
+    flex-basis: calc(33.333% - 20px) !important;
+    max-width: calc(33.333% - 20px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .results-grid .flower-card {
+    flex-basis: calc(50% - 20px) !important;
+    max-width: calc(50% - 20px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-grid .flower-card {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
 }
 
 @media (max-width: 420px) {
@@ -120,10 +135,10 @@ $result = mysqli_stmt_get_result($stmt);
             <p class="caption"><?= htmlspecialchars($f['name']) ?></p>
         </div>
         <div class="card-actions card-actions-outside">
-          <button class="btn btn-outline-dark btn-sm add-cart" data-id="<?= $f['id'] ?>">
-            <?= $f['cart_id'] ? "Remove from Cart" : "Add to Cart" ?>
-          </button>
-          <button class="btn btn-outline-dark btn-sm remove-fav" data-id="<?= $f['id'] ?>">Remove</button>
+          <button class="fav-toggle btn" data-id="<?= $f['id'] ?>" data-fav="1">🤍</button>
+          <?php if (!$f['cart_id']): ?>
+          <button class="btn btn-outline-dark btn-sm add-cart" data-id="<?= $f['id'] ?>">Add to Cart</button>
+          <?php endif; ?>
         </div>
     </div>
 <?php endwhile; ?>
@@ -135,14 +150,18 @@ $result = mysqli_stmt_get_result($stmt);
 <?php include "footer.php"; ?>
 
 <script>
-document.querySelectorAll(".remove-fav").forEach(btn => {
+document.querySelectorAll(".fav-toggle").forEach(btn => {
     btn.addEventListener("click", function () {
         const id = this.dataset.id;
         fetch("favourite_toggle.php?id=" + encodeURIComponent(id), { method: 'POST' })
             .then(r => r.json())
             .then(j => {
                 if (j.success) {
-                    this.closest(".gallery-item").remove();
+                    this.dataset.fav = j.is_favourite ? '1' : '0';
+                    this.innerHTML = j.is_favourite ? '🤍' : '❤️';
+                    if (!j.is_favourite) {
+                        this.closest(".gallery-item").remove();
+                    }
                 } else if (j.login_required) {
                     location.href = "login.php";
                 } else {
@@ -159,7 +178,11 @@ document.querySelectorAll(".add-cart").forEach(btn => {
             .then(r => r.json())
             .then(j => {
                 if (j.success) {
-                    this.textContent = j.in_cart ? "Remove from Cart" : "Add to Cart";
+                    if (j.in_cart) {
+                        this.remove();
+                    } else {
+                        this.textContent = "Add to Cart";
+                    }
                 } else if (j.login_required) {
                     location.href = "login.php";
                 } else {

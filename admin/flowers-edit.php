@@ -2,75 +2,116 @@
 include "admin-header.php";
 require "../db.php";
 
-$contactPath = "../front/contact.php";
-$contactMarkup = is_readable($contactPath) ? file_get_contents($contactPath) : false;
+$flowersPath = "../front/flowers.php";
+$stylePath = "../front/style.css";
+$imagesDir = "../front/images/";
 
-$currentEmail = "";
-$currentPhone = "";
+$styleCss = is_readable($stylePath) ? file_get_contents($stylePath) : false;
+$flowersMarkup = is_readable($flowersPath) ? file_get_contents($flowersPath) : false;
 
-if ($contactMarkup !== false) {
-  if (preg_match('/Email:\s*<a[^>]*href="mailto:([^"]+)"[^>]*>([^<]*)<\/a>/i', $contactMarkup, $matches)) {
-    $currentEmail = trim($matches[2]) !== "" ? $matches[2] : $matches[1];
-  }
-  if (preg_match('/Phone:\s*<a[^>]*href="tel:([^"]+)"[^>]*>([^<]*)<\/a>/i', $contactMarkup, $matches)) {
-    $currentPhone = trim($matches[2]) !== "" ? $matches[2] : $matches[1];
-  }
+$currentImage = "";
+if ($styleCss !== false && preg_match('/\.hero\s*\{[^}]*background:\s*url\([\'"]?([^\'")]+)[\'"]?\)/s', $styleCss, $matches)) {
+  $currentImage = $matches[1];
 }
+
+$currentIntroHtml = "";
+if ($flowersMarkup !== false && preg_match('/<section class="overlap-block">.*?<p>(.*?)<\/p>/s', $flowersMarkup, $matches)) {
+  $currentIntroHtml = $matches[1];
+}
+
+$currentIntroText = trim(
+  html_entity_decode(
+    strip_tags(
+      str_replace(["<br>", "<br/>", "<br />"], "\n", $currentIntroHtml)
+    )
+  )
+);
 
 $errors = [];
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $email = isset($_POST["email"]) ? trim($_POST["email"]) : "";
-  $phone = isset($_POST["phone"]) ? trim($_POST["phone"]) : "";
+  $introText = isset($_POST["intro_text"]) ? trim($_POST["intro_text"]) : "";
+  $newImagePath = $currentImage;
 
-  if ($contactMarkup === false) {
-    $errors[] = "Unable to read front/contact.php.";
+  if (isset($_FILES["hero_image"]) && $_FILES["hero_image"]["error"] === UPLOAD_ERR_OK) {
+    if (!is_dir($imagesDir)) {
+      mkdir($imagesDir, 0755, true);
+    }
+
+    $originalName = basename($_FILES["hero_image"]["name"]);
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
+    $fileName = $safeName . "_" . uniqid() . ($extension ? "." . $extension : "");
+    $targetPath = $imagesDir . $fileName;
+
+    if (!move_uploaded_file($_FILES["hero_image"]["tmp_name"], $targetPath)) {
+      $errors[] = "Image upload failed.";
+    } else {
+      $newImagePath = "images/" . $fileName;
+    }
+  }
+
+  if ($styleCss === false) {
+    $errors[] = "Unable to read front/style.css.";
+  }
+  if ($flowersMarkup === false) {
+    $errors[] = "Unable to read front/flowers.php.";
   }
 
   if (empty($errors)) {
-    $emailEsc = htmlspecialchars($email, ENT_QUOTES);
-    $phoneEsc = htmlspecialchars($phone, ENT_QUOTES);
+    if ($newImagePath !== "" && $styleCss !== false) {
+      $updatedCss = preg_replace(
+        '/(\.hero\s*\{[^}]*background:\s*url\()[\'"]?[^\'")]+[\'"]?(\)[^;]*;)/s',
+        '$1' . $newImagePath . '$2',
+        $styleCss,
+        1,
+        $count
+      );
 
-    $updatedMarkup = $contactMarkup;
+      if ($count === 0) {
+        $updatedCss = preg_replace(
+          '/\.hero\s*\{/',
+          ".hero {\n  background: url('" . $newImagePath . "') center/cover no-repeat;",
+          $styleCss,
+          1
+        );
+      }
 
-    $updatedMarkup = preg_replace_callback(
-      '/(Email:\s*<a[^>]*href="mailto:)([^"]+)(")([^>]*>)([^<]*)(<\/a>)/i',
-      function ($m) use ($emailEsc) {
-        return $m[1] . $emailEsc . $m[3] . $m[4] . $emailEsc . $m[6];
-      },
-      $updatedMarkup,
-      1,
-      $emailCount
-    );
-
-    $updatedMarkup = preg_replace_callback(
-      '/(Phone:\s*<a[^>]*href="tel:)([^"]+)(")([^>]*>)([^<]*)(<\/a>)/i',
-      function ($m) use ($phoneEsc) {
-        return $m[1] . $phoneEsc . $m[3] . $m[4] . $phoneEsc . $m[6];
-      },
-      $updatedMarkup,
-      1,
-      $phoneCount
-    );
-
-    if (($emailCount ?? 0) === 0 || ($phoneCount ?? 0) === 0) {
-      $errors[] = "Failed to locate email/phone markup in front/contact.php.";
-    } else {
-      if (file_put_contents($contactPath, $updatedMarkup) === false) {
-        $errors[] = "Unable to write changes to front/contact.php.";
+      if (file_put_contents($stylePath, $updatedCss) === false) {
+        $errors[] = "Unable to update front/style.css.";
       } else {
-        $contactMarkup = $updatedMarkup;
-        $currentEmail = $email;
-        $currentPhone = $phone;
+        $styleCss = $updatedCss;
+        $currentImage = $newImagePath;
+      }
+    }
+
+    $introHtml = htmlspecialchars($introText, ENT_QUOTES);
+    $updatedMarkup = preg_replace(
+      '/(<section class="overlap-block">.*?<p>)(.*?)(<\/p>)/s',
+      '$1' . "\n" . $introHtml . "\n" . '$3',
+      $flowersMarkup,
+      1
+    );
+
+    if ($updatedMarkup === null) {
+      $errors[] = "Failed to update front/flowers.php content.";
+    } else {
+      if (file_put_contents($flowersPath, $updatedMarkup) === false) {
+        $errors[] = "Unable to write changes to front/flowers.php.";
+      } else {
+        $flowersMarkup = $updatedMarkup;
+        $currentIntroText = $introText;
       }
     }
   }
 
   if (empty($errors)) {
-    $success = "Contact page updated successfully.";
+    $success = "Flowers page updated successfully.";
   }
 }
+
+$currentImageName = $currentImage ? basename($currentImage) : "None";
 ?>
 <style>
 .btn-soft {
@@ -104,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <section class="col-12 col-md-9 col-lg-10 p-4">
       <header class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 m-0">Edit Contact Page</h1>
+        <h1 class="h4 m-0">Edit Flowers Page</h1>
         <a class="btn btn-outline-dark" href="pages.php">All Pages</a>
       </header>
 
@@ -120,15 +161,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="alert alert-success"><?= htmlspecialchars($success); ?></div>
       <?php endif; ?>
 
-      <form class="row g-3" method="POST">
+      <form class="row g-3" method="POST" enctype="multipart/form-data">
         <div class="col-12">
-          <label class="form-label">Email</label>
-          <input class="form-control flower-input" type="email" name="email" value="<?= htmlspecialchars($currentEmail); ?>" required>
+          <label class="form-label">Upload Image (hero background)</label>
+          <input class="form-control flower-input" type="file" name="hero_image" accept="image/*" id="heroImageInput">
+          <div class="form-text">
+            Current image: <strong id="currentImageName"><?= htmlspecialchars($currentImageName); ?></strong>
+          </div>
+          <div class="form-text" id="selectedImageName"></div>
         </div>
 
         <div class="col-12">
-          <label class="form-label">Phone</label>
-          <input class="form-control flower-input" type="text" name="phone" value="<?= htmlspecialchars($currentPhone); ?>" required>
+          <label class="form-label">Welcome Text</label>
+          <textarea class="form-control flower-input" name="intro_text" rows="6"><?= htmlspecialchars($currentIntroText); ?></textarea>
         </div>
 
         <div class="col-12 d-flex gap-2 mb-5">
@@ -139,5 +184,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </section>
   </div>
 </main>
+
+<script>
+  const heroInput = document.getElementById('heroImageInput');
+  const selectedName = document.getElementById('selectedImageName');
+
+  heroInput.addEventListener('change', function () {
+    if (this.files && this.files.length > 0) {
+      selectedName.textContent = "Selected file: " + this.files[0].name;
+    } else {
+      selectedName.textContent = "";
+    }
+  });
+</script>
 
 <?php include "footer-admin.php"; ?>

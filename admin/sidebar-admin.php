@@ -21,7 +21,10 @@ $current = basename($_SERVER['PHP_SELF']);
     <?= ($current=='customers.php' || $current=='customer.php' ? 'active' : '') ?>" 
     href="customers.php">Customers</a>
 
-    <a class="list-group-item list-group-item-action <?= ($current=='pages.php' ? 'active' : '') ?>" href="pages.php">Pages</a>
+    
+    <a class="list-group-item list-group-item-action 
+    <?= ($current=='pages.php' || $current=='contact-edit.php'  || $current=='flowers-edit.php' || $current=='info-edit.php' ? 'active' : '') ?>" 
+    href="pages.php">Pages</a>
 
     <a class="list-group-item list-group-item-action <?= ($current=='settings.php' ? 'active' : '') ?>" href="settings.php">Settings</a>
 
