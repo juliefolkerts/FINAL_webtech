@@ -191,6 +191,8 @@ $initial = $username !== "" ? strtoupper(substr($username, 0, 1)) : "?";
       <div class="col-12 col-sm-10 col-md-8 col-lg-6">
         <div class="card shadow-sm border-0 rounded-4">
           <div class="card-body p-4">
+            
+
             <h1 class="h4 mb-3 text-center text-pink" style="padding-right: 30px;">🌸 Flowers</h1>
             <p class="text-center small text-muted mb-4">My Profile</p>
 
@@ -256,6 +258,9 @@ $initial = $username !== "" ? strtoupper(substr($username, 0, 1)) : "?";
                 <button class="btn btn-signup" type="submit">Update Password</button>
               </div>
             </form>
+            <div class="d-grid mb-3">
+              <a class="btn btn-flower btn-sm" href="profile.php">Back to Profile</a>
+            </div>
 
           </div>
         </div>

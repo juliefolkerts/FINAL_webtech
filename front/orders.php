@@ -63,6 +63,8 @@ function order_status_badge($status) {
               <h1 class="h4 mb-1">My Orders</h1>
               <p class="text-muted small mb-0">Track your recent orders and view their details.</p>
             </div>
+            <a class="btn btn-outline-dark btn-sm" href="profile.php">Back to Profile</a>
+
           </div>
 
           <div class="table-responsive">
