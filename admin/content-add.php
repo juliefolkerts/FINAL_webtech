@@ -3,16 +3,26 @@ include "admin-header.php";
 require "../db.php"; 
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-    $sku = isset($_POST['sku']) ? trim($_POST['sku']) : '';
-    $category_id = isset($_POST['category_id']) ? (int) $_POST['category_id'] : 0;
-    $price = isset($_POST['price']) && $_POST['price'] !== '' ? (float) $_POST['price'] : 0.00;
-    $stock = isset($_POST['stock']) && $_POST['stock'] !== '' ? (int) $_POST['stock'] : 0;
-    $color = isset($_POST['color']) ? trim($_POST['color']) : '';
-    $description = isset($_POST['description']) ? trim($_POST['description']) : '';
-    $keywords = isset($_POST['keywords']) ? trim($_POST['keywords']) : '';
+    $nameInput = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $skuInput = filter_input(INPUT_POST, 'sku', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $categoryIdInput = filter_input(INPUT_POST, 'category_id', FILTER_VALIDATE_INT);
+    $priceInput = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
+    $stockInput = filter_input(INPUT_POST, 'stock', FILTER_VALIDATE_INT);
+    $colorInput = filter_input(INPUT_POST, 'color', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $descriptionInput = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $keywordsInput = filter_input(INPUT_POST, 'keywords', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $visibleInput = filter_input(INPUT_POST, 'visible', FILTER_VALIDATE_BOOLEAN);
+
+    $name = $nameInput !== null ? trim($nameInput) : '';
+    $sku = $skuInput !== null ? trim($skuInput) : '';
+    $category_id = $categoryIdInput !== false && $categoryIdInput !== null ? (int) $categoryIdInput : 0;
+    $price = $priceInput !== false && $priceInput !== null ? (float) $priceInput : 0.00;
+    $stock = $stockInput !== false && $stockInput !== null ? (int) $stockInput : 0;
+    $color = $colorInput !== null ? trim($colorInput) : '';
+    $description = $descriptionInput !== null ? trim($descriptionInput) : '';
+    $keywords = $keywordsInput !== null ? trim($keywordsInput) : '';
     $image = '';
-    $visible = isset($_POST['visible']) ? 1 : 0;
+    $visible = $visibleInput ? 1 : 0;
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = "../uploads/";

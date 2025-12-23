@@ -16,12 +16,14 @@ $error = "";
 
 // Handle form submissions
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $action = $_POST["action"] ?? "";
+    $action = filter_input(INPUT_POST, "action", FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? "";
 
     if ($action === "update_email") {
-        $newEmail = trim($_POST["email"] ?? "");
+        $newEmailInput = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+        $newEmailSanitized = $newEmailInput !== null ? trim($newEmailInput) : "";
+        $newEmail = filter_var($newEmailSanitized, FILTER_VALIDATE_EMAIL);
 
-        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+        if (!$newEmail) {
             $error = "Please enter a valid email address.";
         } else {
             $sql = "UPDATE users SET email = ? WHERE id = ?";
@@ -35,9 +37,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
     } elseif ($action === "update_password") {
-        $currentPassword = $_POST["current_password"] ?? "";
-        $newPassword = $_POST["new_password"] ?? "";
-        $confirmPassword = $_POST["confirm_password"] ?? "";
+        $currentPasswordInput = filter_input(INPUT_POST, "current_password", FILTER_UNSAFE_RAW);
+        $newPasswordInput = filter_input(INPUT_POST, "new_password", FILTER_UNSAFE_RAW);
+        $confirmPasswordInput = filter_input(INPUT_POST, "confirm_password", FILTER_UNSAFE_RAW);
+
+        $currentPassword = $currentPasswordInput !== null ? trim($currentPasswordInput) : "";
+        $newPassword = $newPasswordInput !== null ? trim($newPasswordInput) : "";
+        $confirmPassword = $confirmPasswordInput !== null ? trim($confirmPasswordInput) : "";
 
         if ($currentPassword === "" || $newPassword === "" || $confirmPassword === "") {
             $error = "Password fields cannot be empty.";
@@ -68,7 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
     } elseif ($action === "update_profile_image") {
-        $image = isset($_POST["current_image"]) ? trim($_POST["current_image"]) : "";
+        $imageInput = filter_input(INPUT_POST, "current_image", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $image = $imageInput !== null ? trim($imageInput) : "";
 
         if (isset($_FILES["profile_image"]) && $_FILES["profile_image"]["error"] === UPLOAD_ERR_OK) {
             $upload_dir = "../front/images/";

@@ -5,6 +5,55 @@ require "../db.php";
 $infoPath = "../front/info.php";
 $infoMarkup = is_readable($infoPath) ? file_get_contents($infoPath) : false;
 
+function ensure_cms_table($conn) {
+  $sql = "CREATE TABLE IF NOT EXISTS cms_pages (
+    page_key VARCHAR(50) PRIMARY KEY,
+    content LONGTEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  )";
+  return mysqli_query($conn, $sql);
+}
+
+function fetch_cms_content($conn, $pageKey) {
+  $stmt = mysqli_prepare($conn, "SELECT content FROM cms_pages WHERE page_key = ?");
+  if (!$stmt) {
+    return null;
+  }
+  mysqli_stmt_bind_param($stmt, "s", $pageKey);
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_bind_result($stmt, $content);
+  $data = null;
+  if (mysqli_stmt_fetch($stmt)) {
+    $decoded = json_decode($content, true);
+    if (is_array($decoded)) {
+      $data = $decoded;
+    }
+  }
+  mysqli_stmt_close($stmt);
+  return $data;
+}
+
+function save_cms_content($conn, $pageKey, $payload) {
+  $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  if ($json === false) {
+    return false;
+  }
+  $stmt = mysqli_prepare(
+    $conn,
+    "INSERT INTO cms_pages (page_key, content) VALUES (?, ?)
+     ON DUPLICATE KEY UPDATE content = VALUES(content)"
+  );
+  if (!$stmt) {
+    return false;
+  }
+  mysqli_stmt_bind_param($stmt, "ss", $pageKey, $json);
+  $ok = mysqli_stmt_execute($stmt);
+  mysqli_stmt_close($stmt);
+  return $ok;
+}
+
+$cmsReady = ensure_cms_table($conn);
+
 $currentTitle = "";
 $sections = [];
 
@@ -41,6 +90,16 @@ if ($infoMarkup !== false) {
   }
 }
 
+$cmsContent = $cmsReady ? fetch_cms_content($conn, "info") : null;
+if (is_array($cmsContent)) {
+  if (isset($cmsContent["title"])) {
+    $currentTitle = $cmsContent["title"];
+  }
+  if (!empty($cmsContent["sections"]) && is_array($cmsContent["sections"])) {
+    $sections = $cmsContent["sections"];
+  }
+}
+
 $errors = [];
 $success = "";
 
@@ -50,8 +109,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $sectionTexts = isset($_POST["section_text"]) && is_array($_POST["section_text"]) ? $_POST["section_text"] : [];
   $currentImages = isset($_POST["current_image"]) && is_array($_POST["current_image"]) ? $_POST["current_image"] : [];
 
+  if (!$cmsReady) {
+    $errors[] = "Unable to initialize CMS storage.";
+  }
+
   if ($infoMarkup === false) {
     $errors[] = "Unable to read front/info.php.";
+  }
+
+  $uploadDir = "../front/images/";
+  if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+  }
+
+  $updatedSections = [];
+  $totalSections = max(count($sectionTitles), count($sectionTexts), count($currentImages));
+
+  for ($i = 0; $i < $totalSections; $i++) {
+    $title = isset($sectionTitles[$i]) ? trim($sectionTitles[$i]) : "";
+    $text = isset($sectionTexts[$i]) ? trim($sectionTexts[$i]) : "";
+    $image = isset($currentImages[$i]) ? trim($currentImages[$i]) : "";
+
+    if (isset($_FILES["section_image"]["error"][$i]) && $_FILES["section_image"]["error"][$i] === UPLOAD_ERR_OK) {
+      $originalName = basename($_FILES["section_image"]["name"][$i]);
+      $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+      $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
+      $fileName = $safeName . "_" . uniqid() . ($extension ? "." . $extension : "");
+      $targetPath = $uploadDir . $fileName;
+
+      if (!move_uploaded_file($_FILES["section_image"]["tmp_name"][$i], $targetPath)) {
+        $errors[] = "Image upload failed for section " . ($i + 1) . ".";
+      } else {
+        $image = "images/" . $fileName;
+      }
+    }
+
+    $updatedSections[] = [
+      "title" => $title,
+      "text" => $text,
+      "image" => $image
+    ];
   }
 
   if (empty($errors)) {
@@ -73,12 +170,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $sectionIndex = 0;
     $updatedMarkup = preg_replace_callback(
       '/<section class="info-section">.*?(?=<section class="info-section">|<\/body>)/s',
-      function ($matches) use (&$sectionIndex, $sectionTitles, $sectionTexts, $currentImages) {
+      function ($matches) use (&$sectionIndex, $updatedSections) {
         $block = $matches[0];
 
-        $title = isset($sectionTitles[$sectionIndex]) ? trim($sectionTitles[$sectionIndex]) : "";
-        $text = isset($sectionTexts[$sectionIndex]) ? trim($sectionTexts[$sectionIndex]) : "";
-        $image = isset($currentImages[$sectionIndex]) ? trim($currentImages[$sectionIndex]) : "";
+        $title = $updatedSections[$sectionIndex]["title"] ?? "";
+        $text = $updatedSections[$sectionIndex]["text"] ?? "";
+        $image = $updatedSections[$sectionIndex]["image"] ?? "";
 
         $titleEsc = htmlspecialchars($title, ENT_QUOTES);
         $textEsc = htmlspecialchars($text, ENT_QUOTES);
@@ -131,136 +228,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       } else {
         $infoMarkup = $updatedMarkup;
         $currentTitle = $pageTitle;
-        $sections = [];
-
-        if (preg_match_all('/<section class="info-section">.*?(?=<section class="info-section">|<\/body>)/s', $infoMarkup, $sectionMatches)) {
-          foreach ($sectionMatches[0] as $block) {
-            $sectionTitle = "";
-            $sectionText = "";
-            $sectionImage = "";
-
-            if (preg_match('/<h2>\s*(.*?)\s*<\/h2>/s', $block, $h2Match)) {
-              $sectionTitle = trim(strip_tags($h2Match[1]));
-            }
-
-            if (preg_match('/<p>\s*(.*?)(?:<\/p>|\s*<\/div>)/s', $block, $pMatch)) {
-              $sectionText = trim(strip_tags($pMatch[1]));
-            }
-
-            if (preg_match('/<img\s+[^>]*src="([^"]+)"/i', $block, $imgMatch)) {
-              $sectionImage = trim($imgMatch[1]);
-            }
-
-            $sections[] = [
-              "title" => $sectionTitle,
-              "text" => $sectionText,
-              "image" => $sectionImage
-            ];
-          }
-        }
+        $sections = $updatedSections;
       }
+    }
+  }
+
+  if (empty($errors)) {
+    $cmsPayload = [
+      "title" => $currentTitle,
+      "sections" => $sections
+    ];
+
+    if (!save_cms_content($conn, "info", $cmsPayload)) {
+      $errors[] = "Unable to save CMS content.";
     }
   }
 
   if (empty($errors)) {
     $success = "Info page updated successfully.";
-  }
-}
-
-if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($errors)) {
-  $uploadedImages = [];
-  $uploadDir = "../front/images/";
-
-  if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-  }
-
-  if (isset($_FILES["section_image"]) && isset($_FILES["section_image"]["name"])) {
-    foreach ($_FILES["section_image"]["name"] as $i => $name) {
-      $current = isset($_POST["current_image"][$i]) ? trim($_POST["current_image"][$i]) : "";
-      $uploadedImages[$i] = $current;
-
-      if (isset($_FILES["section_image"]["error"][$i]) && $_FILES["section_image"]["error"][$i] === UPLOAD_ERR_OK) {
-        $originalName = basename($name);
-        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-        $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
-        $fileName = $safeName . "_" . uniqid() . ($extension ? "." . $extension : "");
-        $targetPath = $uploadDir . $fileName;
-
-        if (!move_uploaded_file($_FILES["section_image"]["tmp_name"][$i], $targetPath)) {
-          $errors[] = "Image upload failed for section " . ($i + 1) . ".";
-        } else {
-          $uploadedImages[$i] = "images/" . $fileName;
-        }
-      }
-    }
-  }
-
-  if (empty($errors)) {
-    $updatedMarkup = $infoMarkup;
-
-    $pageTitleEsc = htmlspecialchars($currentTitle, ENT_QUOTES);
-    $updatedMarkup = preg_replace(
-      '/<h1 class="info-title">\s*.*?<\/h1>/s',
-      '<h1 class="info-title">' . $pageTitleEsc . '</h1>',
-      $updatedMarkup,
-      1
-    );
-
-    $sectionIndex = 0;
-    $updatedMarkup = preg_replace_callback(
-      '/<section class="info-section">.*?(?=<section class="info-section">|<\/body>)/s',
-      function ($matches) use (&$sectionIndex, $sectionTitles, $sectionTexts, $uploadedImages) {
-        $block = $matches[0];
-
-        $title = isset($sectionTitles[$sectionIndex]) ? trim($sectionTitles[$sectionIndex]) : "";
-        $text = isset($sectionTexts[$sectionIndex]) ? trim($sectionTexts[$sectionIndex]) : "";
-        $image = isset($uploadedImages[$sectionIndex]) ? trim($uploadedImages[$sectionIndex]) : "";
-
-        $titleEsc = htmlspecialchars($title, ENT_QUOTES);
-        $textEsc = htmlspecialchars($text, ENT_QUOTES);
-        $imageEsc = htmlspecialchars($image, ENT_QUOTES);
-
-        $block = preg_replace(
-          '/<h2>\s*.*?<\/h2>/s',
-          '<h2>' . $titleEsc . '</h2>',
-          $block,
-          1
-        );
-
-        $block = preg_replace_callback(
-          '/<p>\s*.*?(<\/p>|\s*<\/div>)/s',
-          function ($m) use ($textEsc) {
-            $ending = $m[1];
-            $replacement = '<p>' . $textEsc . '</p>';
-            if (stripos($ending, '</div>') !== false) {
-              return $replacement . $ending;
-            }
-            return $replacement;
-          },
-          $block,
-          1
-        );
-
-        $block = preg_replace(
-          '/(<img\s+[^>]*src=")([^"]*)(")/i',
-          '$1' . $imageEsc . '$3',
-          $block,
-          1
-        );
-
-        $sectionIndex++;
-
-        return $block;
-      },
-      $updatedMarkup
-    );
-
-    if (file_put_contents($infoPath, $updatedMarkup) === false) {
-      $errors[] = "Unable to write changes to front/info.php.";
-    } else {
-      $infoMarkup = $updatedMarkup;
-    }
   }
 }
 ?>
@@ -320,7 +305,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($errors)) {
 
         <?php foreach ($sections as $index => $section): ?>
           <?php
-            $rawImage = $section["image"];
+            $rawImage = $section["image"] ?? "";
             $previewImage = $rawImage;
             if (!empty($rawImage) && !preg_match('/^(https?:\/\/|\/|\.{1,2}\/)/', $rawImage)) {
               $previewImage = "../front/" . $rawImage;
@@ -331,16 +316,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($errors)) {
             <div class="row g-3">
               <div class="col-12">
                 <label class="form-label">Heading</label>
-                <input class="form-control flower-input" type="text" name="section_title[]" value="<?= htmlspecialchars($section["title"]); ?>" required>
+                <input class="form-control flower-input" type="text" name="section_title[]" value="<?= htmlspecialchars($section["title"] ?? ""); ?>" required>
               </div>
               <div class="col-12">
                 <label class="form-label">Text</label>
-                <textarea class="form-control flower-input" name="section_text[]" rows="4" required><?= htmlspecialchars($section["text"]); ?></textarea>
+                <textarea class="form-control flower-input" name="section_text[]" rows="4" required><?= htmlspecialchars($section["text"] ?? ""); ?></textarea>
               </div>
 
               <div class="col-12">
                 <label class="form-label">Current Image</label>
-                <input type="hidden" name="current_image[]" value="<?= htmlspecialchars($section["image"]); ?>">
+                <input type="hidden" name="current_image[]" value="<?= htmlspecialchars($section["image"] ?? ""); ?>">
                 <?php if (!empty($section["image"])): ?>
                   <div class="mb-2">
                     <img src="<?= htmlspecialchars($previewImage); ?>" alt="Current section image" style="max-width: 200px; height: auto; border: 1px solid #ddd; border-radius: 6px;">

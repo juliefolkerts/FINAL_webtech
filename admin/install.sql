@@ -13,12 +13,13 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100),
-    email VARCHAR(255),
+    username VARCHAR(100) UNIQUE,
+    email VARCHAR(255) UNIQUE,
     profile_image VARCHAR(255),
     password VARCHAR(255),
     role VARCHAR(50)
 );
+
 
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -66,6 +67,13 @@ CREATE TABLE order_items (
     quantity INT,
     price_at_order DECIMAL(10,2)
 );
+
+CREATE TABLE cms_pages (
+  page_key VARCHAR(50) PRIMARY KEY,
+  content LONGTEXT NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 
 -- Seed categories
 INSERT INTO categories (id, name) VALUES

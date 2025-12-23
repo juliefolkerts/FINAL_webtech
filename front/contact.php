@@ -38,7 +38,7 @@ include "header.php";
     <div class="col-12 col-sm-10 col-md-8 col-lg-6">
       <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body p-4">
-          <h1 class="h4 mb-3 text-center text-pink" style="font-weight: 550; font-size:35px; padding-top: 20px;">Contact Us</h1>
+          <h1 class="h4 mb-3 text-center text-pink" style="font-weight: 550; font-size:35px; padding-top: 20px;">🌸 Contact Us</h1>
         
 
           <div class="mb-4 text-center" style="padding-top: 10px;">

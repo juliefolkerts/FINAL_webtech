@@ -5,11 +5,59 @@ require "../db.php";
 $contactPath = "../front/contact.php";
 $contactMarkup = is_readable($contactPath) ? file_get_contents($contactPath) : false;
 
+function ensure_cms_table($conn) {
+  $sql = "CREATE TABLE IF NOT EXISTS cms_pages (
+    page_key VARCHAR(50) PRIMARY KEY,
+    content LONGTEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  )";
+  return mysqli_query($conn, $sql);
+}
+
+function fetch_cms_content($conn, $pageKey) {
+  $stmt = mysqli_prepare($conn, "SELECT content FROM cms_pages WHERE page_key = ?");
+  if (!$stmt) {
+    return null;
+  }
+  mysqli_stmt_bind_param($stmt, "s", $pageKey);
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_bind_result($stmt, $content);
+  $data = null;
+  if (mysqli_stmt_fetch($stmt)) {
+    $decoded = json_decode($content, true);
+    if (is_array($decoded)) {
+      $data = $decoded;
+    }
+  }
+  mysqli_stmt_close($stmt);
+  return $data;
+}
+
+function save_cms_content($conn, $pageKey, $payload) {
+  $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  if ($json === false) {
+    return false;
+  }
+  $stmt = mysqli_prepare(
+    $conn,
+    "INSERT INTO cms_pages (page_key, content) VALUES (?, ?)
+     ON DUPLICATE KEY UPDATE content = VALUES(content)"
+  );
+  if (!$stmt) {
+    return false;
+  }
+  mysqli_stmt_bind_param($stmt, "ss", $pageKey, $json);
+  $ok = mysqli_stmt_execute($stmt);
+  mysqli_stmt_close($stmt);
+  return $ok;
+}
+
+$cmsReady = ensure_cms_table($conn);
+
 $currentEmail = "";
 $currentPhone = "";
 
 if ($contactMarkup !== false) {
-  // Fix broken anchor tags first (missing ">" before the visible text)
   $contactMarkup = preg_replace(
     '/(mailto:[^"]+)"\s*([a-zA-Z0-9._%+\-@]+)<\/a>/',
     '$1">$2</a>',
@@ -29,12 +77,26 @@ if ($contactMarkup !== false) {
   }
 }
 
+$cmsContent = $cmsReady ? fetch_cms_content($conn, "contact") : null;
+if (is_array($cmsContent)) {
+  if (isset($cmsContent["email"])) {
+    $currentEmail = $cmsContent["email"];
+  }
+  if (isset($cmsContent["phone"])) {
+    $currentPhone = $cmsContent["phone"];
+  }
+}
+
 $errors = [];
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $email = isset($_POST["email"]) ? trim($_POST["email"]) : "";
   $phone = isset($_POST["phone"]) ? trim($_POST["phone"]) : "";
+
+  if (!$cmsReady) {
+    $errors[] = "Unable to initialize CMS storage.";
+  }
 
   if ($contactMarkup === false) {
     $errors[] = "Unable to read front/contact.php.";
@@ -76,6 +138,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $currentEmail = $email;
         $currentPhone = $phone;
       }
+    }
+  }
+
+  if (empty($errors)) {
+    $cmsPayload = [
+      "email" => $currentEmail,
+      "phone" => $currentPhone
+    ];
+
+    if (!save_cms_content($conn, "contact", $cmsPayload)) {
+      $errors[] = "Unable to save CMS content.";
     }
   }
 

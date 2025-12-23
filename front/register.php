@@ -8,18 +8,53 @@ include "header.php";
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = $_POST["username"];
-    $email = $_POST["email"];
-    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+    $usernameInput = filter_input(INPUT_POST, "username", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $emailInput = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+    $passwordInput = filter_input(INPUT_POST, "password", FILTER_UNSAFE_RAW);
 
-    $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sss", $username, $email, $password);
+    $username = $usernameInput !== null ? trim($usernameInput) : "";
+    $emailSanitized = $emailInput !== null ? trim($emailInput) : "";
+    $email = filter_var($emailSanitized, FILTER_VALIDATE_EMAIL);
+    $passwordRaw = $passwordInput !== null ? trim($passwordInput) : "";
 
-    if (mysqli_stmt_execute($stmt)) {
-        $message = "Account created! You can now <a href='login.php'>log in</a>.";
+    if ($username === "" || !$email || $passwordRaw === "") {
+        $message = "Please provide valid username, email, and password.";
     } else {
-        $message = "Error: " . mysqli_error($conn);
+        $sql = "SELECT id FROM users WHERE username = ? LIMIT 1";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "s", $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $existingUser = mysqli_fetch_assoc($result);
+        mysqli_stmt_close($stmt);
+
+        if ($existingUser) {
+            $message = "username unavailable";
+        } else {
+            $sql = "SELECT id FROM users WHERE email = ? LIMIT 1";
+            $stmt = mysqli_prepare($conn, $sql);
+            mysqli_stmt_bind_param($stmt, "s", $email);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $existingEmail = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+
+            if ($existingEmail) {
+                $message = "account with this email already exists";
+            } else {
+                $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
+
+                $sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $sql);
+                mysqli_stmt_bind_param($stmt, "sss", $username, $email, $password);
+
+                if (mysqli_stmt_execute($stmt)) {
+                    $message = "Account created! You can now <a href='login.php'>log in</a>.";
+                } else {
+                    $message = "Error: " . mysqli_error($conn);
+                }
+            }
+        }
     }
 }
 ?>

@@ -26,9 +26,7 @@ $current = basename($_SERVER['PHP_SELF']);
     <?= ($current=='pages.php' || $current=='contact-edit.php'  || $current=='flowers-edit.php' || $current=='info-edit.php' ? 'active' : '') ?>" 
     href="pages.php">Pages</a>
 
-    <a class="list-group-item list-group-item-action <?= ($current=='settings.php' ? 'active' : '') ?>" href="settings.php">Settings</a>
-
-    <a class="list-group-item list-group-item-action <?= ($current=='profile.php' ? 'active' : '') ?>" href="profile.php">Profile</a>
+    <!-- <a class="list-group-item list-group-item-action <?= ($current=='settings.php' ? 'active' : '') ?>" href="settings.php">Settings</a> -->
 
   </div>
 </aside>

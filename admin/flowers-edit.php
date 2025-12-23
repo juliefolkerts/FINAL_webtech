@@ -6,6 +6,55 @@ $flowersPath = "../front/flowers.php";
 $stylePath = "../front/style.css";
 $imagesDir = "../front/images/";
 
+function ensure_cms_table($conn) {
+  $sql = "CREATE TABLE IF NOT EXISTS cms_pages (
+    page_key VARCHAR(50) PRIMARY KEY,
+    content LONGTEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  )";
+  return mysqli_query($conn, $sql);
+}
+
+function fetch_cms_content($conn, $pageKey) {
+  $stmt = mysqli_prepare($conn, "SELECT content FROM cms_pages WHERE page_key = ?");
+  if (!$stmt) {
+    return null;
+  }
+  mysqli_stmt_bind_param($stmt, "s", $pageKey);
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_bind_result($stmt, $content);
+  $data = null;
+  if (mysqli_stmt_fetch($stmt)) {
+    $decoded = json_decode($content, true);
+    if (is_array($decoded)) {
+      $data = $decoded;
+    }
+  }
+  mysqli_stmt_close($stmt);
+  return $data;
+}
+
+function save_cms_content($conn, $pageKey, $payload) {
+  $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  if ($json === false) {
+    return false;
+  }
+  $stmt = mysqli_prepare(
+    $conn,
+    "INSERT INTO cms_pages (page_key, content) VALUES (?, ?)
+     ON DUPLICATE KEY UPDATE content = VALUES(content)"
+  );
+  if (!$stmt) {
+    return false;
+  }
+  mysqli_stmt_bind_param($stmt, "ss", $pageKey, $json);
+  $ok = mysqli_stmt_execute($stmt);
+  mysqli_stmt_close($stmt);
+  return $ok;
+}
+
+$cmsReady = ensure_cms_table($conn);
+
 $styleCss = is_readable($stylePath) ? file_get_contents($stylePath) : false;
 $flowersMarkup = is_readable($flowersPath) ? file_get_contents($flowersPath) : false;
 
@@ -27,12 +76,26 @@ $currentIntroText = trim(
   )
 );
 
+$cmsContent = $cmsReady ? fetch_cms_content($conn, "flowers") : null;
+if (is_array($cmsContent)) {
+  if (!empty($cmsContent["hero_image"])) {
+    $currentImage = $cmsContent["hero_image"];
+  }
+  if (isset($cmsContent["intro_text"])) {
+    $currentIntroText = $cmsContent["intro_text"];
+  }
+}
+
 $errors = [];
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $introText = isset($_POST["intro_text"]) ? trim($_POST["intro_text"]) : "";
   $newImagePath = $currentImage;
+
+  if (!$cmsReady) {
+    $errors[] = "Unable to initialize CMS storage.";
+  }
 
   if (isset($_FILES["hero_image"]) && $_FILES["hero_image"]["error"] === UPLOAD_ERR_OK) {
     if (!is_dir($imagesDir)) {
@@ -103,6 +166,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $flowersMarkup = $updatedMarkup;
         $currentIntroText = $introText;
       }
+    }
+  }
+
+  if (empty($errors)) {
+    $cmsPayload = [
+      "hero_image" => $currentImage,
+      "intro_text" => $currentIntroText
+    ];
+
+    if (!save_cms_content($conn, "flowers", $cmsPayload)) {
+      $errors[] = "Unable to save CMS content.";
     }
   }
 
