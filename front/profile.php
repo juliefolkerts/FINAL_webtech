@@ -86,6 +86,18 @@ $user = mysqli_fetch_assoc($result);
     color: white !important;
 }
 
+.btn-flower {
+    background: white;
+    border: 1px solid #313131;
+    color: #313131 !important; 
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.btn-flower:hover {
+    background: #fd5a88;
+    color: rgb(252, 251, 252) !important;
+}
+
 .card a {
     color: #5fa8d3; 
     text-decoration: none;
@@ -144,6 +156,10 @@ $user = mysqli_fetch_assoc($result);
                 <button class="btn btn-signup" type="submit">Update Password</button>
               </div>
             </form>
+
+            <div class="d-grid mt-4">
+              <a class="btn btn-flower" href="logout.php">logout</a>
+            </div>
 
           </div>
         </div>

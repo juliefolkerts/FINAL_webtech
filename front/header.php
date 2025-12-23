@@ -31,7 +31,6 @@
                 <li><a href="cart.php">Cart</a></li>
                 <li><a href="profile.php">My Profile</a></li>
                 <li><a href="contact.php">Contact</a></li>
-                <li><a href="logout.php">Logout</a></li>
                 <?php if($_SESSION["role"] === "admin"): ?>
                     <li><a href="../admin/index.php" class="admin-btn">Admin Panel</a></li>
                 <?php endif; ?>
@@ -60,7 +59,6 @@
                     <a href="cart.php">Cart</a>
                     <a href="profile.php">My Profile</a>
                     <a href="contact.php">Contact</a>
-                    <a href="logout.php">Logout</a>
                     <?php if($_SESSION["role"] === "admin"): ?>
                         <a href="../admin/index.php" class="admin-btn">Admin Panel</a>
                     <?php endif; ?>
