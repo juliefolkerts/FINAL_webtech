@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_customer'])) {
                         <?php while ($order = mysqli_fetch_assoc($orders_result)): ?>
                           <tr>
                             <td><a href="order-detail.php?id=<?= $order['id'] ?>">#<?= $order['id'] ?></a></td>
-                            <td><?= htmlspecialchars($order['created_at']) ?></td>
+                            <?= htmlspecialchars($order['created_at']) ?>
                             <td>$<?= number_format($order['total'], 2) ?></td>
                             <td>
                               <?php
