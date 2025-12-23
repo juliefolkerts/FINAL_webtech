@@ -28,6 +28,7 @@
 
             <?php if(isset($_SESSION["user_id"])): ?>
                 <li><a href="favourites.php">Favourites</a></li>
+                <li><a href="cart.php">Cart</a></li>
                 <li><a href="profile.php">My Profile</a></li>
                 <li><a href="contact.php">Contact</a></li>
                 <li><a href="logout.php">Logout</a></li>
@@ -56,6 +57,7 @@
 
                 <?php if(isset($_SESSION["user_id"])): ?>
                     <a href="favourites.php">Favourites</a>
+                    <a href="cart.php">Cart</a>
                     <a href="profile.php">My Profile</a>
                     <a href="contact.php">Contact</a>
                     <a href="logout.php">Logout</a>

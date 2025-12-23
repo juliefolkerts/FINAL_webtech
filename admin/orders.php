@@ -1,6 +1,36 @@
 <?php include "admin-header.php"; ?>
 <?php require "../db.php"; ?>
 
+<?php
+$orders = [];
+$sql = "SELECT o.id, o.total, o.status, o.user_id, u.username, u.email
+        FROM orders o
+        LEFT JOIN users u ON u.id = o.user_id
+        ORDER BY o.id DESC";
+$result = mysqli_query($conn, $sql);
+if ($result) {
+  while ($row = mysqli_fetch_assoc($result)) {
+    $orders[] = $row;
+  }
+}
+
+function order_status_badge($status) {
+  $normalized = strtolower(trim((string) $status));
+  switch ($normalized) {
+    case 'paid':
+      return 'bg-success';
+    case 'pending':
+      return 'bg-warning';
+    case 'shipped':
+      return 'bg-secondary';
+    case 'refunded':
+      return 'bg-refunded';
+    default:
+      return 'bg-secondary';
+  }
+}
+?>
+
 <style>
   .btn-edit,
   .btn-delete {
@@ -63,44 +93,33 @@
                 <th>Order #</th>
                 <th>Customer</th>
                 <th>Total</th>
-                <th>Date</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><a href="order-details.php">#2001</a></td>
-                <td>Customer 1</td>
-                <td>$265.26</td>
-                <td>2025-09-12</td>
-                <td><span class="badge bg-secondary">Shipped</span></td>
-                <td><a class="btn btn-edit" href="order-details.php">View</a></td>
-              </tr>
-              <tr>
-                <td><a href="order-detail.html">#2002</a></td>
-                <td>Customer 2</td>
-                <td>$116.81</td>
-                <td>2025-09-18</td>
-                <td><span class="badge bg-refunded">Refunded</span></td>
-                <td><a class="btn btn-edit" href="order-details.php">View</a></td>
-              </tr>
-              <tr>
-                <td><a href="order-details.php">#2003</a></td>
-                <td>Customer 3</td>
-                <td>$138.01</td>
-                <td>2025-09-12</td>
-                <td><span class="badge bg-success">Paid</span></td>
-                <td><a class="btn btn-edit" href="order-details.php">View</a></td>
-              </tr>
-              <tr>
-                <td><a href="order-details.php">#2004</a></td>
-                <td>Customer 4</td>
-                <td>$285.07</td>
-                <td>2025-09-21</td>
-                <td><span class="badge bg-warning">Pending</span></td>
-                <td><a class="btn btn-edit" href="order-details.php">View</a></td>
-              </tr>
+              <?php if (count($orders) === 0): ?>
+                <tr>
+                  <td colspan="5" class="text-center text-muted">No orders found.</td>
+                </tr>
+              <?php else: ?>
+                <?php foreach ($orders as $order): ?>
+                  <?php
+                    $customer = $order["username"] ?: $order["email"];
+                    if (!$customer) {
+                      $customer = "User #" . (int) $order["user_id"];
+                    }
+                    $badge = order_status_badge($order["status"]);
+                  ?>
+                  <tr>
+                    <td><a href="order-details.php?id=<?= (int) $order["id"] ?>">#<?= (int) $order["id"] ?></a></td>
+                    <td><?= htmlspecialchars($customer) ?></td>
+                    <td>€<?= number_format((float) $order["total"], 2) ?></td>
+                    <td><span class="badge <?= $badge ?>"><?= htmlspecialchars($order["status"] ?: "Unknown") ?></span></td>
+                    <td><a class="btn btn-edit" href="order-details.php?id=<?= (int) $order["id"] ?>">View</a></td>
+                  </tr>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </tbody>
           </table>
         </div>
@@ -112,4 +131,3 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-

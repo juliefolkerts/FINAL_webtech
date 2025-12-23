@@ -4,7 +4,7 @@
 <?php
 $totalFlowers = 0;
 $newOrders = 0;
-$pendingShipments = 0;
+$totalOrders = 0;
 $activeCustomers = 0;
 
 $result = mysqli_query($conn, "SELECT COALESCE(SUM(stock), 0) AS total FROM flowers");
@@ -22,13 +22,48 @@ if ($result) {
 $result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM orders");
 if ($result) {
     $row = mysqli_fetch_assoc($result);
-    $pendingShipments = (int) $row["total"];
+    $totalOrders = (int) $row["total"];
 }
 
 $result = mysqli_query($conn, "SELECT COUNT(*) AS total FROM users WHERE role <> 'admin' OR role IS NULL");
 if ($result) {
     $row = mysqli_fetch_assoc($result);
     $activeCustomers = (int) $row["total"];
+}
+?>
+
+<?php
+$recentOrders = [];
+$recentSql = "SELECT o.id, o.total, o.status, o.user_id, u.username, u.email,
+                     GROUP_CONCAT(DISTINCT f.name ORDER BY f.name SEPARATOR ', ') AS flowers
+              FROM orders o
+              LEFT JOIN users u ON u.id = o.user_id
+              LEFT JOIN order_items oi ON oi.order_id = o.id
+              LEFT JOIN flowers f ON f.id = oi.flower_id
+              GROUP BY o.id
+              ORDER BY o.id DESC
+              LIMIT 3";
+$recentResult = mysqli_query($conn, $recentSql);
+if ($recentResult) {
+    while ($row = mysqli_fetch_assoc($recentResult)) {
+        $recentOrders[] = $row;
+    }
+}
+
+function dashboard_status_badge($status) {
+    $normalized = strtolower(trim((string) $status));
+    switch ($normalized) {
+        case 'paid':
+            return 'bg-success';
+        case 'pending':
+            return 'bg-warning';
+        case 'shipped':
+            return 'bg-secondary';
+        case 'refunded':
+            return 'bg-refunded';
+        default:
+            return 'bg-secondary';
+    }
 }
 ?>
 
@@ -50,7 +85,7 @@ if ($result) {
         </div></div></div>
 
         <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body">
-          <div class="small text-muted">Total Orders</div><div class="h4"><?php echo $pendingShipments; ?></div>
+          <div class="small text-muted">Total Orders</div><div class="h4"><?php echo $totalOrders; ?></div>
         </div></div></div>
 
         <div class="col-6 col-lg-3"><div class="card h-100"><div class="card-body">
@@ -63,9 +98,27 @@ if ($result) {
         <table class="table table-striped table-hover align-middle">
           <thead><tr><th>Order #</th><th>Customer</th><th>Flower</th><th>Total</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>#1001</td><td>Alice Bloom</td><td>Roses</td><td>$45</td><td><span class="badge bg-success">Paid</span></td></tr>
-            <tr><td>#1002</td><td>John Petal</td><td>Sunflowers</td><td>$30</td><td><span class="badge bg-secondary">Shipped</span></td></tr>
-            <tr><td>#1003</td><td>Lily Grace</td><td>Tulips</td><td>$28</td><td><span class="badge bg-warning">Pending</span></td></tr>
+            <?php if (count($recentOrders) === 0): ?>
+              <tr><td colspan="5" class="text-center text-muted">No orders found.</td></tr>
+            <?php else: ?>
+              <?php foreach ($recentOrders as $order): ?>
+                <?php
+                  $customer = $order["username"] ?: $order["email"];
+                  if (!$customer) {
+                    $customer = "User #" . (int) $order["user_id"];
+                  }
+                  $flowerList = $order["flowers"] ?: "No items";
+                  $badge = dashboard_status_badge($order["status"]);
+                ?>
+                <tr>
+                  <td>#<?= (int) $order["id"] ?></td>
+                  <td><?= htmlspecialchars($customer) ?></td>
+                  <td><?= htmlspecialchars($flowerList) ?></td>
+                  <td>€<?= number_format((float) $order["total"], 2) ?></td>
+                  <td><span class="badge <?= $badge ?>"><?= htmlspecialchars($order["status"] ?: "Unknown") ?></span></td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
           </tbody>
         </table>
       </div>
