@@ -11,6 +11,7 @@ $sql = "SELECT c.id AS cart_id, c.quantity, flowers.*
         FROM cart c
         JOIN flowers ON flowers.id = c.flower_id
         WHERE c.user_id = ?
+          AND flowers.visible = 1
         ORDER BY c.id DESC";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "i", $user);

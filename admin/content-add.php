@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $visible = isset($_POST['visible']) ? 1 : 0;
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = "../front/images/";
+        $upload_dir = "../uploads/";
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             die("Image upload failed.");
         }
 
-        $image = "images/" . $file_name;
+        $image = "/uploads/" . $file_name;
     }
 
     $sql = "INSERT INTO flowers (name, sku, category_id, price, stock, color, description, keywords, image, visible)

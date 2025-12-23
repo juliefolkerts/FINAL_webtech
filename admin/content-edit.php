@@ -13,6 +13,17 @@ mysqli_stmt_close($stmt);
 
 $categories = mysqli_query($conn, "SELECT * FROM categories");
 
+$currentImage = $flower['image'] ?? '';
+$currentImagePreview = $currentImage;
+if (!empty($currentImage) && !preg_match('/^(https?:\/\/|\/|\.{1,2}\/)/', $currentImage)) {
+    $trimmedImage = ltrim($currentImage, "/");
+    if (strpos($trimmedImage, "front/") === 0) {
+        $currentImagePreview = "../" . $trimmedImage;
+    } else {
+        $currentImagePreview = "../front/" . $trimmedImage;
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $name = isset($_POST['name']) ? trim($_POST['name']) : '';
@@ -181,6 +192,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <input class="form-check-input flower-switch" type="checkbox" name="visible" <?= !empty($flower['visible']) ? 'checked' : '' ?>>
             <label class="form-check-label">Visible</label>
           </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Current Image</label>
+          <?php if (!empty($currentImage)): ?>
+            <div class="mb-2">
+              <img src="<?= htmlspecialchars($currentImagePreview); ?>" alt="Current flower image" style="max-width: 240px; height: auto; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+          <?php else: ?>
+            <p class="text-muted mb-2">No image set.</p>
+          <?php endif; ?>
         </div>
 
         <div class="col-12">

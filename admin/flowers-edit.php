@@ -112,6 +112,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 $currentImageName = $currentImage ? basename($currentImage) : "None";
+$currentImagePreview = $currentImage;
+if (!empty($currentImage) && !preg_match('/^(https?:\/\/|\/|\.{1,2}\/)/', $currentImage)) {
+  $currentImagePreview = "../front/" . $currentImage;
+}
 ?>
 <style>
 .btn-soft {
@@ -162,6 +166,17 @@ $currentImageName = $currentImage ? basename($currentImage) : "None";
       <?php endif; ?>
 
       <form class="row g-3" method="POST" enctype="multipart/form-data">
+        <div class="col-12">
+          <label class="form-label">Current Image</label>
+          <?php if (!empty($currentImage)): ?>
+            <div class="mb-2">
+              <img src="<?= htmlspecialchars($currentImagePreview); ?>" alt="Current hero image" style="max-width: 240px; height: auto; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+          <?php else: ?>
+            <p class="text-muted mb-2">No image set.</p>
+          <?php endif; ?>
+        </div>
+
         <div class="col-12">
           <label class="form-label">Upload Image (hero background)</label>
           <input class="form-control flower-input" type="file" name="hero_image" accept="image/*" id="heroImageInput">

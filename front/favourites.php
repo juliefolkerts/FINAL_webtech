@@ -12,6 +12,7 @@ $sql = "SELECT f.id AS fav_id, flowers.*, c.id AS cart_id
         JOIN flowers ON flowers.id = f.flower_id
         LEFT JOIN cart c ON c.flower_id = flowers.id AND c.user_id = f.user_id
         WHERE f.user_id = ?
+          AND flowers.visible = 1
         ORDER BY f.id DESC";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "i", $user);

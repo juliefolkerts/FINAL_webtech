@@ -40,6 +40,21 @@ require "../db.php";
     background: #fd5a88;
   color: rgb(252, 251, 252);
   }
+
+  .actions-cell {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 576px) {
+    .actions-cell {
+      justify-content: flex-start;
+      min-width: max-content;
+    }
+  }
 </style>
 
 <body>
@@ -91,7 +106,7 @@ require "../db.php";
               <td><?= $row['stock'] ?></td>
               <td><?= $row['visible'] ? "Yes" : "No" ?></td>
 
-              <td class="d-flex gap-2">
+              <td class="actions-cell">
                 <a class="btn-edit" href="content-edit.php?id=<?= $row['id'] ?>">Edit</a>
                 <a class="btn btn-delete"
                    href="content-delete.php?id=<?= $row['id'] ?>"
