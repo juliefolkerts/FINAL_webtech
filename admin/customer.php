@@ -7,12 +7,16 @@
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 // Fetch user data
-$stmt = mysqli_prepare($conn, "SELECT id, username, email FROM users WHERE id = ?");
+$stmt = mysqli_prepare($conn, "SELECT id, username, email, profile_image FROM users WHERE id = ?");
 mysqli_stmt_bind_param($stmt, "i", $id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
+$profileImage = $user["profile_image"] ?? "";
+$profileImageSrc = $profileImage !== "" && !preg_match('/^(https?:)?\/\//i', $profileImage)
+    ? "../front/" . ltrim($profileImage, "/")
+    : $profileImage;
 
 // als user niet gevonden, redirect back
 if (!$user) {
@@ -22,7 +26,7 @@ if (!$user) {
 
 // fecth orders
 $stmt = mysqli_prepare($conn, "
-    SELECT id, created_at, total, status
+    SELECT id, total, status, NULL AS created_at
     FROM orders
     WHERE user_id = ?
     ORDER BY id DESC
@@ -92,6 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_customer'])) {
       text-align: center;
       transform: none;
     }
+    .customer-profile-image {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 12px;
+    }
     .btn-dcustomer {
       background: white;
       border: 1px solid #313131;
@@ -124,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_customer'])) {
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body">
                 <h2 class="h6">Customer</h2>
+                <img class="customer-profile-image" src="<?= htmlspecialchars($profileImageSrc) ?>" alt="<?= htmlspecialchars($user['username']) ?>">
                 <p class="mb-1"><?= htmlspecialchars($user['username']) ?></p>
                 <p class="small text-muted"><?= htmlspecialchars($user['email']) ?></p>
                 <form id="delete-customer-form" method="POST">

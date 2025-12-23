@@ -86,12 +86,18 @@ $result = mysqli_stmt_get_result($stmt);
 
 .flower-card .price-details {
   margin-top: 10px !important;
-  padding: 8px 10px !important;
+  padding: 8px 16px !important;
   background: #fff4f7 !important;
   border-radius: 10px !important;
-  text-align: center !important;
+  text-align: left !important;
   font-size: 0.9rem !important;
   color: #333 !important;
+  box-sizing: border-box !important;
+}
+
+.flower-card .price-details .item-title {
+  font-weight: 700 !important;
+  font-size: 1rem !important;
 }
 
 .flower-card .price-details .line-total {
@@ -109,6 +115,7 @@ $result = mysqli_stmt_get_result($stmt);
 .flower-card .quantity-control input {
   width: 70px !important;
   text-align: center !important;
+  border-radius: 999px !important;
 }
 
 .order-total {
@@ -177,7 +184,7 @@ while ($f = mysqli_fetch_assoc($result)):
             <p class="caption"><?= htmlspecialchars($f['name']) ?></p>
         </div>
         <div class="price-details" data-price="<?= htmlspecialchars($unitPrice) ?>">
-            <div><?= htmlspecialchars($f['name']) ?></div>
+            <div class="item-title"><?= htmlspecialchars($f['name']) ?></div>
             <div>Price: €<?= number_format($unitPrice, 2) ?></div>
             <div class="quantity-control">
                 <label for="qty-<?= $f['id'] ?>">Amount</label>
