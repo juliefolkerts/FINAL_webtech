@@ -228,8 +228,9 @@ $initial = $username !== "" ? strtoupper(substr($username, 0, 1)) : "?";
             <hr>
 
             <h5 class="mb-3">Change Email</h5>
-            <form method="POST" class="mb-4">
+            <form method="POST" class="mb-4" id="update-email-form">
               <input type="hidden" name="action" value="update_email">
+              <div class="validation-message text-danger small mb-2"></div>
               <div class="mb-3">
                 <input type="email" name="email" placeholder="New email" class="form-control" required>
               </div>
@@ -239,8 +240,9 @@ $initial = $username !== "" ? strtoupper(substr($username, 0, 1)) : "?";
             </form>
 
             <h5 class="mb-3">Change Password</h5>
-            <form method="POST">
+            <form method="POST" id="update-password-form">
               <input type="hidden" name="action" value="update_password">
+              <div class="validation-message text-danger small mb-2"></div>
               <div class="mb-3">
                 <input type="password" name="current_password" placeholder="Current password" class="form-control" required>
               </div>
@@ -263,4 +265,5 @@ $initial = $username !== "" ? strtoupper(substr($username, 0, 1)) : "?";
 
 </main>
 
+<script src="form-validation.js"></script>
 <?php include "footer.php"; ?>

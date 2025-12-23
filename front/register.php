@@ -92,7 +92,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               <p style="color:green;"><?= $message ?></p>
             <?php endif; ?>
 
-            <form form method="POST">
+            <form form method="POST" id="register-form">
+              <div class="validation-message text-danger small mb-2"></div>
               <div class="mb-3">
                 
                 <input type="text" name="username" placeholder="username" class="form-control" required>
@@ -126,4 +127,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </main>
 
 
+<script src="form-validation.js"></script>
 <?php include "footer.php"; ?>
