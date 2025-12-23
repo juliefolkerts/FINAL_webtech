@@ -51,8 +51,16 @@ require "../db.php";
 
   @media (max-width: 576px) {
     .actions-cell {
-      justify-content: flex-start;
-      min-width: max-content;
+      flex-direction: column;
+      align-items: stretch;
+      white-space: normal;
+      min-width: 140px;
+    }
+
+    .actions-cell .btn-edit,
+    .actions-cell .btn-delete {
+      width: 100%;
+      text-align: center;
     }
   }
 </style>
