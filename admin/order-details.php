@@ -42,6 +42,8 @@ if ($orderId > 0) {
 function details_status_badge($status) {
   $normalized = strtolower(trim((string) $status));
   switch ($normalized) {
+    case 'completed':
+      return 'bg-success';
     case 'paid':
       return 'bg-success';
     case 'pending':
@@ -86,7 +88,15 @@ function details_status_badge($status) {
               Order not found
             <?php endif; ?>
           </h1>
-          <a class="btn btn-outline-dark" href="orders.php">Back to Orders</a>
+          <div class="d-flex gap-2">
+            <?php if ($order && strtolower((string) $order["status"]) !== 'completed'): ?>
+              <form method="POST" action="order-complete.php" class="d-inline-block js-complete-order">
+                <input type="hidden" name="id" value="<?= (int) $order["id"] ?>">
+                <button class="btn btn-dark" type="submit">Complete Order</button>
+              </form>
+            <?php endif; ?>
+            <a class="btn btn-outline-dark" href="orders.php">Back to Orders</a>
+          </div>
         </header>
 
         <div class="row g-4">
@@ -162,4 +172,13 @@ function details_status_badge($status) {
   <?php include "footer-admin.php"; ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.querySelectorAll(".js-complete-order").forEach(function (form) {
+      form.addEventListener("submit", function (event) {
+        if (!confirm("Are you sure this order is completed?")) {
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
 </body>

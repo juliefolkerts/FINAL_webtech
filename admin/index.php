@@ -53,6 +53,8 @@ if ($recentResult) {
 function dashboard_status_badge($status) {
     $normalized = strtolower(trim((string) $status));
     switch ($normalized) {
+        case 'completed':
+            return 'bg-success';
         case 'paid':
             return 'bg-success';
         case 'pending':
