@@ -69,6 +69,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_customer'])) {
 
 <body>
   <style>
+
+.bg-success {
+  background-color: #b9e2b0 !important; 
+  color: #1a1919 !important;
+}
+
+.bg-warning {
+  background-color: #fff1a2 !important; 
+  color: #1a1919 !important;
+}
     .customer-fav-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

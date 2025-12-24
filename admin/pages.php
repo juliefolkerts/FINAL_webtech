@@ -66,18 +66,12 @@
         </header>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h2 class="h6 m-0">Site Pages</h2>
-          <a class="btn btn-soft" href="#">Add New Page</a>
         </div>
 
         <?php
           $pages = [
             ["title" => "Home", "slug" => "flowers.php", "status" => "Published"],
             ["title" => "Information", "slug" => "info.php", "status" => "Published"],
-            ["title" => "Search", "slug" => "search.php", "status" => "Published"],
-            ["title" => "Favourites", "slug" => "favourites.php", "status" => "Published"],
-            ["title" => "Cart", "slug" => "cart.php", "status" => "Published"],
-            ["title" => "Profile", "slug" => "profile.php", "status" => "Published"],
             ["title" => "Contact", "slug" => "contact.php", "status" => "Published"],
           ];
         ?>
